@@ -39,7 +39,7 @@
     >
       <MeQueryItem label="用户名" :label-width="50">
         <n-input
-          v-model:value="queryItems.username"
+          v-model:value="queryItems.userName"
           type="text"
           placeholder="请输入用户名"
           clearable
@@ -52,7 +52,7 @@
 
       <MeQueryItem label="状态" :label-width="50">
         <n-select
-          v-model:value="queryItems.enable"
+          v-model:value="queryItems.status"
           clearable
           :options="[
             { label: '启用', value: 1 },
@@ -99,7 +99,7 @@ const columns = [
         src: avatar,
       }),
   },
-  { title: '用户名', key: 'username', width: 150, ellipsis: { tooltip: true } },
+  { title: '用户名', key: 'userName', width: 150, ellipsis: { tooltip: true } },
   {
     title: '角色',
     key: 'roles',
@@ -134,7 +134,7 @@ const columns = [
   },
   {
     title: '状态',
-    key: 'enable',
+    key: 'status',
     width: 100,
 
     render: (row) =>
@@ -143,7 +143,7 @@ const columns = [
         {
           size: 'small',
           rubberBand: false,
-          value: row.enable,
+          value: row.status,
         },
         {
           checked: () => '启用',

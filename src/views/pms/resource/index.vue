@@ -21,7 +21,7 @@
       <div class="ml-40 w-0 flex-1">
         <template v-if="currentMenu">
           <div class="flex justify-between">
-            <h3 class="mb-12">{{ currentMenu.name }}</h3>
+            <h3 class="mb-12">{{ currentMenu.menuName }}</h3>
             <n-button
               :disabled="!currentMenu"
               size="small"
@@ -33,8 +33,8 @@
             </n-button>
           </div>
           <n-descriptions label-placement="left" bordered :column="2">
-            <n-descriptions-item label="编码">{{ currentMenu.code }}</n-descriptions-item>
-            <n-descriptions-item label="名称">{{ currentMenu.name }}</n-descriptions-item>
+            <n-descriptions-item label="编码">{{ currentMenu.menuType}}</n-descriptions-item>
+            <n-descriptions-item label="名称">{{ currentMenu.menuName }}</n-descriptions-item>
             <n-descriptions-item label="路由地址">
               {{ currentMenu.path ?? '--' }}
             </n-descriptions-item>
@@ -52,16 +52,16 @@
               {{ currentMenu.layout || '跟随系统' }}
             </n-descriptions-item>
             <n-descriptions-item label="是否显示">
-              {{ currentMenu.show ? '是' : '否' }}
+              {{ currentMenu.visible=='0' ? '是' : '否' }}
             </n-descriptions-item>
             <n-descriptions-item label="是否启用">
-              {{ currentMenu.enable ? '是' : '否' }}
+              {{ currentMenu.status=='0' ? '是' : '否' }}
             </n-descriptions-item>
-            <n-descriptions-item label="KeepAlive">
+<!--            <n-descriptions-item label="KeepAlive">
               {{ currentMenu.keepAlive ? '是' : '否' }}
-            </n-descriptions-item>
+            </n-descriptions-item>-->
             <n-descriptions-item label="排序">
-              {{ currentMenu.order ?? '--' }}
+              {{ currentMenu.orderNum ?? '--' }}
             </n-descriptions-item>
           </n-descriptions>
         </template>

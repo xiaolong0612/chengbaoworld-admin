@@ -8,12 +8,12 @@
 
 <template>
   <div>
-    <n-tooltip trigger="hover" placement="left">
+<!--    <n-tooltip trigger="hover" placement="left">
       <template #trigger>
         <i class="i-fe:settings cursor-pointer text-32 color-primary" @click="modalRef.open()" />
       </template>
       布局设置
-    </n-tooltip>
+    </n-tooltip>-->
 
     <MeModal
       ref="modalRef"

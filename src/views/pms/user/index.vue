@@ -4,12 +4,12 @@
  - @LastEditTime: 2023/12/05 21:29:56
  - @Email: zclzone@outlook.com
  - Copyright © 2023 Ronnie Zhang(大脸怪) | https://isme.top
- --------------------------------->
+ --v-permission="'AddUser'"------------------------------->
 
 <template>
   <CommonPage>
     <template #action>
-      <n-button v-permission="'AddUser'" type="primary" @click="handleAdd()">
+      <n-button  type="primary" @click="handleAdd()">
         <i class="i-material-symbols:add mr-4 text-18" />
         创建新用户
       </n-button>
@@ -24,24 +24,26 @@
     >
       <MeQueryItem label="用户名" :label-width="50">
         <n-input
-          v-model:value="queryItems.username"
+          v-model:value="queryItems.userName"
           type="text"
           placeholder="请输入用户名"
           clearable
         />
       </MeQueryItem>
 
+<!--
       <MeQueryItem label="性别" :label-width="50">
-        <n-select v-model:value="queryItems.gender" clearable :options="genders" />
+        <n-select v-model:value="queryItems.sex" clearable :options="genders" />
       </MeQueryItem>
+-->
 
       <MeQueryItem label="状态" :label-width="50">
         <n-select
-          v-model:value="queryItems.enable"
+          v-model:value="queryItems.status"
           clearable
           :options="[
-            { label: '启用', value: 1 },
-            { label: '停用', value: 0 },
+            { label: '启用', value: 0 },
+            { label: '停用', value: 1 },
           ]"
         />
       </MeQueryItem>
@@ -58,14 +60,14 @@
       >
         <n-form-item
           label="用户名"
-          path="username"
+          path="userName"
           :rule="{
             required: true,
             message: '请输入用户名',
             trigger: ['input', 'blur'],
           }"
         >
-          <n-input v-model:value="modalForm.username" :disabled="modalAction !== 'add'" />
+          <n-input v-model:value="modalForm.userName" :disabled="modalAction !== 'add'" />
         </n-form-item>
         <n-form-item
           v-if="['add', 'reset'].includes(modalAction)"
@@ -84,23 +86,26 @@
           <n-select
             v-model:value="modalForm.roleIds"
             :options="roles"
-            label-field="name"
-            value-field="id"
+            label-field="roleName"
+            value-field="roleId"
             clearable
             filterable
             multiple
           />
         </n-form-item>
-        <n-form-item v-if="modalAction === 'add'" label="状态" path="enable">
-          <n-switch v-model:value="modalForm.enable">
+        <n-form-item v-if="modalAction === 'add'" label="状态" path="status">
+          <n-switch v-model:value="modalForm.status"
+                    checked-value="0"
+                    unchecked-value="1"
+          >
             <template #checked>启用</template>
             <template #unchecked>停用</template>
           </n-switch>
         </n-form-item>
       </n-form>
-      <n-alert v-if="modalAction === 'add'" type="warning" closable>
+<!--      <n-alert v-if="modalAction === 'add'" type="warning" closable>
         详细信息需由用户本人补充修改
-      </n-alert>
+      </n-alert>-->
     </MeModal>
   </CommonPage>
 </template>
@@ -122,15 +127,15 @@ onMounted(() => {
   $table.value?.handleSearch()
 })
 
-const genders = [
-  { label: '男', value: 1 },
-  { label: '女', value: 2 },
-]
+/*const genders = [
+  { label: '男', value: '0' },
+  { label: '女', value: '1' },
+]*/
 const roles = ref([])
-api.getAllRoles().then(({ data = [] }) => (roles.value = data))
+api.getAllRoles().then((data) => {roles.value = data.roles;})
 
 const columns = [
-  {
+/*  {
     title: '头像',
     key: 'avatar',
     width: 80,
@@ -139,8 +144,8 @@ const columns = [
         size: 'medium',
         src: avatar,
       }),
-  },
-  { title: '用户名', key: 'username', width: 150, ellipsis: { tooltip: true } },
+  },*/
+  { title: '用户名', key: 'userName', width: 150, ellipsis: { tooltip: true } },
   {
     title: '角色',
     key: 'roles',
@@ -159,13 +164,13 @@ const columns = [
       return '暂无角色'
     },
   },
-  {
+/*  {
     title: '性别',
-    key: 'gender',
+    key: 'sex',
     width: 80,
     render: ({ gender }) => genders.find((item) => gender === item.value)?.label ?? '',
-  },
-  { title: '邮箱', key: 'email', width: 150, ellipsis: { tooltip: true } },
+  },*/
+  { title: '手机号', key: 'phonenumber', width: 150, ellipsis: { tooltip: true } },
   {
     title: '创建时间',
     key: 'createDate',
@@ -176,7 +181,7 @@ const columns = [
   },
   {
     title: '状态',
-    key: 'enable',
+    key: 'status',
     width: 120,
     render: (row) =>
       h(
@@ -184,7 +189,7 @@ const columns = [
         {
           size: 'small',
           rubberBand: false,
-          value: row.enable,
+          value: row.status==="0",
           loading: !!row.enableLoading,
           onUpdateValue: () => handleEnable(row),
         },
@@ -236,7 +241,7 @@ const columns = [
             size: 'small',
             type: 'error',
             style: 'margin-left: 12px;',
-            onClick: () => handleDelete(row.id),
+            onClick: () => handleDelete(row.userId),
           },
           {
             default: () => '删除',
@@ -251,7 +256,7 @@ const columns = [
 async function handleEnable(row) {
   row.enableLoading = true
   try {
-    await api.update({ id: row.id, enable: !row.enable })
+    await api.updateStatus({ userId: row.userId, status: row.status=="1"?"0":"1" })
     row.enableLoading = false
     $message.success('操作成功')
     $table.value?.handleSearch()
@@ -265,7 +270,7 @@ function handleOpenRolesSet(row) {
   handleOpen({
     action: 'setRole',
     title: '分配角色',
-    row: { id: row.id, username: row.username, roleIds },
+    row: { id: row.id, userName: row.userName, roleIds },
     onOk: onSave,
   })
 }
@@ -281,7 +286,7 @@ const {
   handleSave,
 } = useCrud({
   name: '用户',
-  initForm: { enable: true },
+  initForm: { status: '0' },
   doCreate: api.create,
   doDelete: api.delete,
   doUpdate: api.update,

@@ -62,20 +62,20 @@
       >
 
         <n-form-item
-            label="头像"
-            path="avater"
-            :rule="{
+          label="头像"
+          path="avater"
+          :rule="{
             required: true,
             message: '请上传头像',
             trigger: ['input', 'blur'],
           }"
         >
           <CustomUpload
-              v-if="['add', 'edit'].includes(modalAction)"
-              label="头像"
-              :value="modalForm.avatar"
-              path="mobile"
-              :rule="{
+            v-if="['add', 'edit'].includes(modalAction)"
+            label="头像"
+            :value="modalForm.avatar"
+            path="mobile"
+            :rule="{
             required: true,
             message: '请上传头像',
             trigger: ['input', 'blur'],
@@ -95,10 +95,10 @@
           <n-input v-model:value="modalForm.username" :disabled="modalAction !== 'add'" />
         </n-form-item>
         <n-form-item
-            v-if="['add', 'edit'].includes(modalAction)"
-            label="手机号"
-            path="mobile"
-            :rule="{
+          v-if="['add', 'edit'].includes(modalAction)"
+          label="手机号"
+          path="mobile"
+          :rule="{
             required: true,
             message: '请输入手机号',
             trigger: ['input', 'blur'],
@@ -176,30 +176,30 @@ const columns = [
         h('span', nickname),
       ]},
   { title: '手机号', key: 'mobile', width: 150, ellipsis: { tooltip: true } },
-/*  {
-    title: '角色',
-    key: 'roles',
-    width: 200,
-    ellipsis: { tooltip: true },
-    render: ({ roles }) => {
-      if (roles?.length) {
-        return roles.map((item, index) =>
-          h(
-            NTag,
-            { type: 'success', style: index > 0 ? 'margin-left: 8px;' : '' },
-            { default: () => item.name }
+  /*  {
+      title: '角色',
+      key: 'roles',
+      width: 200,
+      ellipsis: { tooltip: true },
+      render: ({ roles }) => {
+        if (roles?.length) {
+          return roles.map((item, index) =>
+            h(
+              NTag,
+              { type: 'success', style: index > 0 ? 'margin-left: 8px;' : '' },
+              { default: () => item.name }
+            )
           )
-        )
-      }
-      return '暂无角色'
+        }
+        return '暂无角色'
+      },
     },
-  },
-  {
-    title: '性别',
-    key: 'gender',
-    width: 80,
-    render: ({ gender }) => genders.find((item) => gender === item.value)?.label ?? '',
-  },*/
+    {
+      title: '性别',
+      key: 'gender',
+      width: 80,
+      render: ({ gender }) => genders.find((item) => gender === item.value)?.label ?? '',
+    },*/
   { title: '余额', key: 'balance', width: 150, ellipsis: { tooltip: true } },
   { title: '冻结宝石', key: 'frezon_balance', width: 150, ellipsis: { tooltip: true } },
   { title: '微信', key: 'wechat', width: 150, ellipsis: { tooltip: true } },
@@ -262,31 +262,31 @@ const columns = [
     render(row) {
       return [
         h(
-            NButton,
-            {
-              size: 'small',
-              type: 'primary',
-              secondary: true,
-              onClick: () => handleEdit(row),
-            },
-            {
-              default: () => '编辑',
-              icon: () => h('i', { class: 'i-carbon:user-role text-14' }),
-            }
-        ),
-/*        h(
           NButton,
           {
             size: 'small',
             type: 'primary',
             secondary: true,
-            onClick: () => handleOpenRolesSet(row),
+            onClick: () => handleEdit(row),
           },
           {
-            default: () => '分配角色',
+            default: () => '编辑',
             icon: () => h('i', { class: 'i-carbon:user-role text-14' }),
           }
-        ),*/
+        ),
+        /*        h(
+                  NButton,
+                  {
+                    size: 'small',
+                    type: 'primary',
+                    secondary: true,
+                    onClick: () => handleOpenRolesSet(row),
+                  },
+                  {
+                    default: () => '分配角色',
+                    icon: () => h('i', { class: 'i-carbon:user-role text-14' }),
+                  }
+                ),*/
         h(
           NButton,
           {
@@ -297,7 +297,7 @@ const columns = [
           },
           {
             default: () => '重置密码',
-/*            icon: () => h('i', { class: 'i-radix-icons:reset text-14' }),*/
+            /*            icon: () => h('i', { class: 'i-radix-icons:reset text-14' }),*/
           }
         ),
 
@@ -311,7 +311,7 @@ const columns = [
           },
           {
             default: () => '删除',
-/*            icon: () => h('i', { class: 'i-material-symbols:delete-outline text-14' }),*/
+            /*            icon: () => h('i', { class: 'i-material-symbols:delete-outline text-14' }),*/
           }
         ),
       ]

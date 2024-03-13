@@ -10,7 +10,7 @@ import axios from 'axios'
 import { request } from '@/utils'
 
 export default {
-  getMenuTree: () => request.get('/permission/menu/tree'),
+  getMenuTree: () => request.get('/system/menu/list'),
   getButtonAndApi: (parentId) => request.get(`/permission/button-and-api/${parentId}`),
   getComponents: () => axios.get(`${import.meta.env.VITE_PUBLIC_PATH}components.json`),
   addPermission: (data) => request.post('/permission', data),

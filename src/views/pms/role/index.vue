@@ -23,11 +23,11 @@
       :get-data="api.read"
     >
       <MeQueryItem label="角色名" :label-width="50">
-        <n-input v-model:value="queryItems.name" type="text" placeholder="请输入角色名" clearable />
+        <n-input v-model:value="queryItems.roleName" type="text" placeholder="请输入角色名" clearable />
       </MeQueryItem>
       <MeQueryItem label="状态" :label-width="50">
         <n-select
-          v-model:value="queryItems.enable"
+          v-model:value="queryItems.status"
           clearable
           :options="[
             { label: '启用', value: 1 },
@@ -46,37 +46,51 @@
       >
         <n-form-item
           label="角色名"
-          path="name"
+          path="roleName"
           :rule="{
             required: true,
             message: '请输入角色名',
             trigger: ['input', 'blur'],
           }"
         >
-          <n-input v-model:value="modalForm.name" />
+          <n-input v-model:value="modalForm.roleName" />
         </n-form-item>
         <n-form-item
           label="角色编码"
-          path="code"
+          path="roleKey"
           :rule="{
             required: true,
             message: '请输入角色编码',
             trigger: ['input', 'blur'],
           }"
         >
-          <n-input v-model:value="modalForm.code" :disabled="modalAction !== 'add'" />
+          <n-input v-model:value="modalForm.roleKey" :disabled="modalAction !== 'add'" />
         </n-form-item>
-        <n-form-item label="权限" path="permissionIds">
+        <n-form-item
+          label="排序"
+          path="roleSort"
+          :rule="{
+            required: true,
+            message: '请输入排序',
+            trigger: ['input', 'blur'],
+          }"
+        >
+          <n-input v-model:value="modalForm.roleSort" :disabled="modalAction !== 'add'" />
+        </n-form-item>
+        <n-form-item label="权限" path="menuIds">
           <CascadeTree
-            v-model:value="modalForm.permissionIds"
+            v-model:value="modalForm.menuIds"
             :tree-data="permissionTree"
-            label-field="name"
+            label-field="label"
             key-field="id"
             class="cus-scroll max-h-200 w-full"
           />
         </n-form-item>
-        <n-form-item label="状态" path="enable">
-          <n-switch v-model:value="modalForm.enable">
+        <n-form-item label="状态" path="status">
+          <n-switch v-model:value="modalForm.status"
+                    checked-value="0"
+                    unchecked-value="1"
+          >
             <template #checked>启用</template>
             <template #unchecked>停用</template>
           </n-switch>
@@ -106,18 +120,18 @@ onMounted(() => {
 })
 
 const columns = [
-  { title: '角色名', key: 'name' },
-  { title: '角色编码', key: 'code' },
+  { title: '角色名', key: 'roleName' },
+  { title: '角色编码', key: 'roleKey' },
   {
     title: '状态',
-    key: 'enable',
+    key: 'status',
     render: (row) =>
       h(
         NSwitch,
         {
           size: 'small',
           rubberBand: false,
-          value: row.enable,
+          value: row.status==="0",
           loading: !!row.enableLoading,
           disabled: row.code === 'SUPER_ADMIN',
           onUpdateValue: () => handleEnable(row),
@@ -172,7 +186,7 @@ const columns = [
             type: 'error',
             style: 'margin-left: 12px;',
             disabled: row.code === 'SUPER_ADMIN',
-            onClick: () => handleDelete(row.id),
+            onClick: () => handleDelete(row.roleId),
           },
           {
             default: () => '删除',
@@ -187,7 +201,7 @@ const columns = [
 async function handleEnable(row) {
   row.enableLoading = true
   try {
-    await api.update({ id: row.id, enable: !row.enable })
+    await api.updateStatus({ roleId: row.roleId, status: row.status=="1"?"0":"1" })
     row.enableLoading = false
     $message.success('操作成功')
     $table.value?.handleSearch()
@@ -202,7 +216,7 @@ const { modalRef, modalFormRef, modalAction, modalForm, handleAdd, handleDelete,
     doCreate: api.create,
     doDelete: api.delete,
     doUpdate: api.update,
-    initForm: { enable: true },
+    initForm: { status: '0' },
     refresh: () => $table.value?.handleSearch(),
   })
 

@@ -61,8 +61,7 @@
             v-if="captchaUrl"
             :src="captchaUrl"
             alt="验证码"
-            height="40"
-            class="ml-12 w-80 cursor-pointer"
+            class="ml-12 h-36 cursor-pointer"
             @click="initCaptcha"
           />
         </div>
@@ -77,15 +76,6 @@
         <div class="mt-20 flex items-center">
           <n-button
             class="h-40 flex-1 rounded-5 text-16"
-            type="primary"
-            ghost
-            @click="quickLogin()"
-          >
-            一键体验
-          </n-button>
-
-          <n-button
-            class="ml-32 h-40 flex-1 rounded-5 text-16"
             type="primary"
             :loading="loading"
             @click="handleLogin()"
@@ -115,11 +105,17 @@ const title = import.meta.env.VITE_TITLE
 const loginInfo = ref({
   username: '',
   password: '',
+  uuid:''
 })
 
 const captchaUrl = ref('')
-const initCaptcha = throttle(() => {
-  captchaUrl.value = '/api/auth/captcha?' + Date.now()
+
+const initCaptcha = throttle(async () => {
+  const {img,code,uuid} = await api.getImg()
+  if(code === 200){
+    captchaUrl.value = 'data:image/gif;base64,' + img;
+    loginInfo.value.uuid = uuid;
+  }
 }, 500)
 
 const localLoginInfo = lStorage.get('loginInfo')
@@ -138,18 +134,19 @@ function quickLogin() {
 const isRemember = useStorage('isRemember', true)
 const loading = ref(false)
 async function handleLogin(isQuick) {
-  const { username, password, captcha } = loginInfo.value
+  const { username, password, captcha,uuid } = loginInfo.value
   if (!username || !password) return $message.warning('请输入用户名和密码')
-  if (!isQuick && !captcha) return $message.warning('请输入验证码')
+  if (!captcha) return $message.warning('请输入验证码')
   try {
     loading.value = true
     $message.loading('正在验证，请稍后...', { key: 'login' })
-    const { data } = await api.login({ username, password: password.toString(), captcha, isQuick })
+    const { data } = await api.login({ username, password: password.toString(), code:captcha, uuid })
     if (isRemember.value) {
       lStorage.set('loginInfo', { username, password })
     } else {
       lStorage.remove('loginInfo')
     }
+    console.log(data)
     onLoginSuccess(data)
   } catch (error) {
     // 10003为验证码错误专属业务码

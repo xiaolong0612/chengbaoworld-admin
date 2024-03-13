@@ -20,8 +20,8 @@
           <n-tree-select
             v-model:value="modalForm.parentId"
             :options="menuOptions"
-            label-field="name"
-            key-field="id"
+            label-field="menuName"
+            key-field="menuId"
             placeholder="根菜单"
             clearable
           />
@@ -30,13 +30,13 @@
           <template #label>
             <QuestionLabel label="名称" content="标题" />
           </template>
-          <n-input v-model:value="modalForm.name" />
+          <n-input v-model:value="modalForm.menuName" />
         </n-form-item-gi>
-        <n-form-item-gi :span="12" path="code" :rule="required">
+        <n-form-item-gi :span="12" path="menuType" :rule="required">
           <template #label>
             <QuestionLabel label="编码" content="如果是菜单则对应前端路由的name，使用大驼峰" />
           </template>
-          <n-input v-model:value="modalForm.code" />
+          <n-input v-model:value="modalForm.menuType" />
         </n-form-item-gi>
         <n-form-item-gi :span="12" path="path">
           <template #label>
@@ -78,11 +78,14 @@
           />
         </n-form-item-gi>
 
-        <n-form-item-gi :span="12" path="show">
+        <n-form-item-gi :span="12" path="visible">
           <template #label>
             <QuestionLabel label="显示状态" content="控制是否在菜单栏显示，不影响路由注册" />
           </template>
-          <n-switch v-model:value="modalForm.show">
+          <n-switch v-model:value="modalForm.visible"
+                    checked-value="0"
+                    unchecked-value="1"
+          >
             <template #checked>显示</template>
             <template #unchecked>隐藏</template>
           </n-switch>
@@ -94,12 +97,15 @@
               content="如果是菜单，禁用后将不添加到路由表，无法进入此页面"
             />
           </template>
-          <n-switch v-model:value="modalForm.enable">
+          <n-switch v-model:value="modalForm.status"
+                    checked-value="0"
+                    unchecked-value="1"
+          >
             <template #checked>启用</template>
             <template #unchecked>禁用</template>
           </n-switch>
         </n-form-item-gi>
-        <n-form-item-gi :span="12" path="enable">
+<!--        <n-form-item-gi :span="12" path="enable">
           <template #label>
             <QuestionLabel
               label="KeepAlive"
@@ -110,11 +116,11 @@
             <template #checked>是</template>
             <template #unchecked>否</template>
           </n-switch>
-        </n-form-item-gi>
+        </n-form-item-gi>-->
         <n-form-item-gi
           :span="12"
           label="排序"
-          path="order"
+          path="orderNum"
           :rule="{
             type: 'number',
             required: true,
@@ -122,7 +128,7 @@
             trigger: ['blur', 'change'],
           }"
         >
-          <n-input-number v-model:value="modalForm.order" />
+          <n-input-number v-model:value="modalForm.orderNum" />
         </n-form-item-gi>
       </n-grid>
     </n-form>
@@ -136,6 +142,7 @@ import { useForm, useModal } from '@/composables'
 import api from '../api'
 import pagePathes from 'isme:page-pathes'
 import icons from 'isme:icons'
+import { NSwitch } from 'naive-ui'
 
 const props = defineProps({
   menus: {

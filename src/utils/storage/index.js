@@ -9,7 +9,7 @@
 
 import { createStorage } from './storage'
 
-const prefixKey = 'vue-naive-admin_'
+const prefixKey = 'castleworld-admin_'
 
 export const createLocalStorage = function (option = {}) {
   return createStorage({

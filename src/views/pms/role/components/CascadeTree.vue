@@ -49,6 +49,7 @@ watch([halfCheckedKeys, checkedKeys], ([v1, v2]) => {
   emit('update:value', Array.from(new Set([...v1, ...v2])))
 })
 onMounted(() => {
+  if(!props.value) return null;
   halfCheckedKeys.value = getHalfCheckedValues(props.value, props.treeData)
   checkedKeys.value = props.value.filter((item) => !halfCheckedKeys.value.includes(item))
 })
@@ -57,6 +58,7 @@ onMounted(() => {
 function getHalfCheckedValues(selectedValues, treeData, halfCheckedValues = []) {
   function isHalfChecked(node) {
     // 如果存在子节点没有选中或者子节点是半选状态
+    if(!selectedValues || !halfCheckedValues) return null
     return node.children.some(
       (item) =>
         !selectedValues.includes(item[props.keyField]) ||

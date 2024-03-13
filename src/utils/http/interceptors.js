@@ -38,9 +38,8 @@ export function setupInterceptors(axiosInstance) {
         return Promise.resolve(data)
       }
       const code = data?.code ?? status
-
       // 根据code处理对应的操作，并返回处理后的message
-      const message = resolveResError(code, data?.message ?? statusText)
+      const message = resolveResError(code, data?.msg ?? statusText)
 
       //需要错误提醒
       !config?.noNeedTip && message && window.$message?.error(message)

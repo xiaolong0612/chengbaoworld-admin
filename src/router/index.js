@@ -28,6 +28,7 @@ export async function initUserAndPermissions(data) {
   const dataStore = useDataStore()
 
   if (!authStore.accessToken) {
+      console.log('non-token')
     const route = unref(router.currentRoute)
     if (route.path !== '/login') {
       router.replace({

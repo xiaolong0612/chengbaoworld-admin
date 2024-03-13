@@ -3,7 +3,7 @@ import { useModal, useForm } from '.'
 const ACTIONS = {
   view: '查看',
   edit: '编辑',
-  add: '新增1',
+  add: '新增',
 }
 
 export const useCrud = ({ name, initForm = {}, doCreate, doDelete, doUpdate, refresh }) => {

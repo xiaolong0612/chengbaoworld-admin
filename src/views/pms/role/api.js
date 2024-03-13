@@ -9,12 +9,12 @@
 import { request } from '@/utils'
 
 export default {
-  create: (data) => request.post('/role', data),
-  read: (params = {}) => request.get('/role/page', { params }),
-  update: (data) => request.patch(`/role/${data.id}`, data),
-  delete: (id) => request.delete(`/role/${id}`),
-
-  getAllPermissionTree: () => request.get('/permission/tree'),
+  create: (data) => request.post('/system/role', data),
+  read: (params = {}) => request.get('/system/role/list', { params }),
+  update: (data) => request.put(`/system/role`, data),
+  delete: (id) => request.delete(`/system/role/${id}`),
+  updateStatus: (data) => request.put(`/system/role/changeStatus`, data),
+  getAllPermissionTree: () => request.get('/system/menu/treeselect'),
   getAllUsers: (params = {}) => request.get('/user', { params }),
   addRoleUsers: (roleId, data) => request.patch(`/role/users/add/${roleId}`, data),
   removeRoleUsers: (roleId, data) => request.patch(`/role/users/remove/${roleId}`, data),

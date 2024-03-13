@@ -80,7 +80,7 @@ const props = defineProps({
    * ! 约定接口入参出参
    * * 分页模式需约定分页接口入参
    *    @pageSize 分页参数：一页展示多少条，默认10
-   *    @pageNo   分页参数：页码，默认1
+   *    @pageNum   分页参数：页码，默认1
    * * 需约定接口出参
    *    @pageData 分页模式必须,非分页模式如果没有pageData则取上一层data
    *    @total    分页模式必须，非分页模式如果没有total则取上一层data.length
@@ -103,14 +103,14 @@ async function handleQuery() {
     let paginationParams = {}
     // 如果非分页模式或者使用前端分页,则无需传分页参数
     if (props.isPagination && props.remote) {
-      paginationParams = { pageNo: pagination.page, pageSize: pagination.pageSize }
+      paginationParams = { pageNum: pagination.page, pageSize: pagination.pageSize }
     }
-    const { data } = await props.getData({
+    const { rows,total } = await props.getData({
       ...props.queryItems,
       ...paginationParams,
     })
-    tableData.value = data?.pageData || data
-    pagination.itemCount = data.total ?? data.length
+    tableData.value = rows
+    pagination.itemCount = total
   } catch (error) {
     tableData.value = []
     pagination.itemCount = 0
