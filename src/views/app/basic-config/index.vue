@@ -8,7 +8,7 @@
     >
       <n-card :bordered="false" title="转赠配置" content-style="padding-bottom: 0;">
         <n-form-item label="转赠手续费%" path="inputValue">
-          <n-input placeholder="请输入二级分佣比例" />
+          <n-input placeholder="请输入二级分佣比例" v-model:value="modelData.aaa"/>
         </n-form-item>
         <n-form-item label="是否需要密码" path="inputValue">
           <n-switch>
@@ -45,8 +45,8 @@
         </n-form-item>
         <n-form-item label=" ">
           <n-space>
-            <n-button strong secondary type="primary">提交</n-button>
-            <n-button strong secondary>重置</n-button>
+            <n-button  :loading="loading" strong secondary type="primary" @click="update">提交</n-button>
+            <n-button :disabled="loading" strong secondary @click="reset">重置</n-button>
           </n-space>
         </n-form-item>
       </n-card>
@@ -54,4 +54,29 @@
   </AppPage>
 </template>
 
-<script setup></script>
+<script setup>
+import api from './api'
+
+const modelData = ref({aaa:1});
+const loading = ref(false);
+
+onMounted(() => {
+  api.read().then(res => {
+
+  })
+})
+const update = ()=>{
+  loading.value = true;
+  api.update().then(res=>{
+    $message.success('操作成功');
+    loading.value = false;
+  },err=>{
+    loading.value = false;
+  })
+}
+const reset = ()=>{
+  modelData.value={aaa:1}
+}
+
+
+</script>

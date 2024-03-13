@@ -3,14 +3,14 @@
     <template #action>
       <n-button type="primary" @click="handleAdd()">
         <i class="i-material-symbols:add mr-4 text-18" />
-        创建新用户
+        创建新矿场
       </n-button>
     </template>
 
     <MeCrud
       ref="$table"
       v-model:query-items="queryItems"
-      :scroll-x="2500"
+      :scroll-x="1500"
       :columns="columns"
       :get-data="api.read"
     >
@@ -18,7 +18,7 @@
         <n-input
           v-model:value="queryItems.nickname"
           type="text"
-          placeholder="请输入 昵称 / 账号 / ID"
+          placeholder="矿场名称"
           clearable
         />
       </MeQueryItem>
@@ -29,26 +29,6 @@
         ]" />
       </MeQueryItem>
 
-      <MeQueryItem label="用户状态">
-        <n-select
-          v-model:value="queryItems.status"
-          clearable
-          :options="[
-            { label: '启用', value: 1 },
-            { label: '停用', value: 0 },
-          ]"
-        />
-      </MeQueryItem>
-      <MeQueryItem label="认证状态">
-        <n-select
-          v-model:value="queryItems.cert"
-          clearable
-          :options="[
-            { label: '已认证', value: 1 },
-            { label: '未认证', value: 0 },
-          ]"
-        />
-      </MeQueryItem>
     </MeCrud>
 
     <MeModal ref="modalRef" width="520px">
@@ -61,85 +41,67 @@
         :disabled="modalAction === 'view'"
       >
 
+
         <n-form-item
-          label="头像"
-          path="avater"
+          label="矿场名称"
+          path="name"
           :rule="{
             required: true,
-            message: '请上传头像',
+            message: '请输入名称',
             trigger: ['input', 'blur'],
           }"
         >
-          <CustomUpload
-            v-if="['add', 'edit'].includes(modalAction)"
-            label="头像"
-            :value="modalForm.avatar"
-            path="mobile"
-            :rule="{
-            required: true,
-            message: '请上传头像',
-            trigger: ['input', 'blur'],
-          }"
-          >
-          </CustomUpload>
-        </n-form-item>
-        <n-form-item
-          label="用户名"
-          path="username"
-          :rule="{
-            required: true,
-            message: '请输入用户名',
-            trigger: ['input', 'blur'],
-          }"
-        >
-          <n-input v-model:value="modalForm.username" :disabled="modalAction !== 'add'" />
+          <n-input v-model:value="modalForm.name" :disabled="modalAction !== 'add'" />
         </n-form-item>
         <n-form-item
           v-if="['add', 'edit'].includes(modalAction)"
-          label="手机号"
-          path="mobile"
+          label="解锁消耗材料"
+          path="price"
           :rule="{
             required: true,
-            message: '请输入手机号',
+            message: '解锁消耗材料',
             trigger: ['input', 'blur'],
           }"
         >
           <n-input v-model:value="modalForm.mobile"  />
         </n-form-item>
+
+
         <n-form-item
-          v-if="['add', 'reset'].includes(modalAction)"
-          :label="modalAction === 'reset' ? '重置密码' : '初始密码'"
-          path="password"
+          v-if="['add', 'edit'].includes(modalAction)"
+          label="最大可容纳人数"
+          path="max"
           :rule="{
             required: true,
-            message: '请输入密码',
+            message: '最大可容纳人数',
             trigger: ['input', 'blur'],
           }"
         >
-          <n-input v-model:value="modalForm.password" />
+          <n-input v-model:value="modalForm.max"  />
         </n-form-item>
-
-        <n-form-item v-if="['add', 'setRole'].includes(modalAction)" label="角色" path="roleIds">
-          <n-select
-            v-model:value="modalForm.roleIds"
-            :options="roles"
-            label-field="name"
-            value-field="id"
-            clearable
-            filterable
-            multiple
-          />
+        <n-form-item
+          v-if="['add', 'edit'].includes(modalAction)"
+          label="总产出"
+          path="output"
+          :rule="{
+            required: true,
+            message: '总产出',
+            trigger: ['input', 'blur'],
+          }"
+        >
+          <n-input v-model:value="modalForm.output"  />
         </n-form-item>
-        <n-form-item v-if="modalAction === 'add'" label="状态" path="enable">
-          <n-switch v-model:value="modalForm.enable">
-            <template #checked>启用</template>
-            <template #unchecked>停用</template>
+        <n-form-item v-if="modalAction === 'add'" label="状态" path="status">
+          <n-switch v-model:value="modalForm.status"
+                    checked-value="1"
+                    unchecked-value="0"
+          >
+            <template #checked>上架</template>
+            <template #unchecked>下架</template>
           </n-switch>
         </n-form-item>
       </n-form>
-      <n-alert v-if="modalAction === 'add'" type="warning" closable>
-        详细信息需由用户本人补充修改
-      </n-alert>
+
     </MeModal>
   </CommonPage>
 </template>
@@ -167,95 +129,51 @@ const roles = ref([])
 api.getAllRoles().then(({ data = [] }) => (roles.value = data))
 
 const columns = [
-  { title: '昵称', key: 'nickname', width: 150, render: ({ avatar, nickname }) =>
-      [
-        h(NAvatar, {
-          size: 'medium',
-          src: avatar,
-        }),
-        h('span', nickname),
-      ]},
-  { title: '手机号', key: 'mobile', width: 150, ellipsis: { tooltip: true } },
-  /*  {
-      title: '角色',
-      key: 'roles',
-      width: 200,
-      ellipsis: { tooltip: true },
-      render: ({ roles }) => {
-        if (roles?.length) {
-          return roles.map((item, index) =>
-            h(
-              NTag,
-              { type: 'success', style: index > 0 ? 'margin-left: 8px;' : '' },
-              { default: () => item.name }
-            )
-          )
-        }
-        return '暂无角色'
-      },
-    },
-    {
-      title: '性别',
-      key: 'gender',
-      width: 80,
-      render: ({ gender }) => genders.find((item) => gender === item.value)?.label ?? '',
-    },*/
-  { title: '余额', key: 'balance', width: 150, ellipsis: { tooltip: true } },
-  { title: '冻结宝石', key: 'frezon_balance', width: 150, ellipsis: { tooltip: true } },
-  { title: '微信', key: 'wechat', width: 150, ellipsis: { tooltip: true } },
-  { title: 'QQ', key: 'qq', width: 150, ellipsis: { tooltip: true } },
-  { title: '分佣比例', key: 'rate', width: 150, },
-  { title: '允许赠送', key: 'is_give', width: 50,},
-  { title: '在线', key: 'online', width: 50,
-    render: (row) =>
-      h(
-        NTag,
-        {
-          type: !row.online ? '' : 'success',
-        },
-        !row.online ? '离线' : '在线'
-      ),
+  { title: '矿场名称', key: 'name', width: 100, ellipsis: { tooltip: true } },
+  { title: '最大可容纳人数', key: 'max', width: 100, ellipsis: { tooltip: true } },
+  { title: '日产', key: 'singleOuput', width: 100, ellipsis: { tooltip: true },
+    render: (row) =>{
+      return row.singleOuput*86400
+    }
   },
+  { title: '总产出', key: 'output', width: 50, ellipsis: { tooltip: true },
+  render: (row) =>{
+    return row.output === 0?"无限制":row.output
+  }
+  },
+  { title: '解锁消耗材料', key: 'price', width: 100, ellipsis: { tooltip: true } },
   {
-    title: '登陆状态',
+    title: '状态',
     key: 'status',
-    width: 120,
+    width: 100,
     render: (row) =>
       h(
         NSwitch,
         {
           size: 'small',
           rubberBand: false,
-          value: row.enable,
+          value: row.status==='1',
           loading: !!row.enableLoading,
           onUpdateValue: () => handleEnable(row),
         },
         {
-          checked: () => '允许',
-          unchecked: () => '禁止',
+          checked: () => '上架',
+          unchecked: () => '下架',
         }
       ),
   },
   {
-    title: '注册时间',
-    key: 'reg_date',
-    width: 180,
+    title: '创建时间',
+    key: 'createDate',
+    width: 150,
     render(row) {
       return h('span', formatDateTime(row['reg_date']))
     },
   },
   {
-    title: '编辑时间',
-    key: 'edit_date',
-    width: 180,
-    render(row) {
-      return h('span', formatDateTime(row['edit_date']))
-    },
-  },
-  {
     title: '操作',
     key: 'actions',
-    width: 200,
+    width: 50,
     align: 'center',
     fixed: 'right',
     hideInExcel: true,
@@ -271,49 +189,9 @@ const columns = [
           },
           {
             default: () => '编辑',
-            icon: () => h('i', { class: 'i-carbon:user-role text-14' }),
-          }
-        ),
-        /*        h(
-                  NButton,
-                  {
-                    size: 'small',
-                    type: 'primary',
-                    secondary: true,
-                    onClick: () => handleOpenRolesSet(row),
-                  },
-                  {
-                    default: () => '分配角色',
-                    icon: () => h('i', { class: 'i-carbon:user-role text-14' }),
-                  }
-                ),*/
-        h(
-          NButton,
-          {
-            size: 'small',
-            type: 'primary',
-            style: 'margin-left: 12px;',
-            onClick: () => handleOpen({ action: 'reset', title: '重置密码', row, onOk: onSave }),
-          },
-          {
-            default: () => '重置密码',
-            /*            icon: () => h('i', { class: 'i-radix-icons:reset text-14' }),*/
           }
         ),
 
-        h(
-          NButton,
-          {
-            size: 'small',
-            type: 'error',
-            style: 'margin-left: 12px;',
-            onClick: () => handleDelete(row.id),
-          },
-          {
-            default: () => '删除',
-            /*            icon: () => h('i', { class: 'i-material-symbols:delete-outline text-14' }),*/
-          }
-        ),
       ]
     },
   },
@@ -347,15 +225,13 @@ const {
   modalForm,
   modalAction,
   handleAdd,
-  handleDelete,
   handleOpen,
   handleEdit,
   handleSave,
 } = useCrud({
-  name: '用户',
-  initForm: { enable: true },
+  name: '矿场',
+  initForm: { status: '1' },
   doCreate: api.create,
-  doDelete: api.delete,
   doUpdate: api.update,
   refresh: () => $table.value?.handleSearch(),
 })
