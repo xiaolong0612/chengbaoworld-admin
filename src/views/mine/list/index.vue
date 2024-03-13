@@ -7,41 +7,28 @@
       </n-button>
     </template>
 
-    <MeCrud
-      ref="$table"
-      v-model:query-items="queryItems"
-      :scroll-x="1500"
-      :columns="columns"
-      :get-data="api.read"
-    >
-      <MeQueryItem label="关键词搜索">
-        <n-input
-          v-model:value="queryItems.nickname"
-          type="text"
-          placeholder="矿场名称"
-          clearable
-        />
-      </MeQueryItem>
-      <MeQueryItem label="宝石排序">
-        <n-select v-model:value="queryItems.balanceSort" clearable :options="[
-            { label: '宝石降序', value: 1 },
-            { label: '宝石升序', value: 2 },
-        ]" />
-      </MeQueryItem>
-
-    </MeCrud>
+    <MeCrud ref="$table" :columns="columns" :get-data="api.read"></MeCrud>
 
     <MeModal ref="modalRef" width="520px">
       <n-form
         ref="modalFormRef"
         label-placement="left"
         label-align="left"
-        :label-width="80"
+        :label-width="130"
         :model="modalForm"
         :disabled="modalAction === 'view'"
       >
-
-
+        <n-form-item
+          label="矿场封面图"
+          path="name"
+          :rule="{
+            required: true,
+            message: '请输入名称',
+            trigger: ['input', 'blur'],
+          }"
+        >
+          <CustomUpload v-model:value="modalForm.name" />
+        </n-form-item>
         <n-form-item
           label="矿场名称"
           path="name"
@@ -59,25 +46,11 @@
           path="price"
           :rule="{
             required: true,
-            message: '解锁消耗材料',
+            message: '解锁消耗宝石',
             trigger: ['input', 'blur'],
           }"
         >
-          <n-input v-model:value="modalForm.mobile"  />
-        </n-form-item>
-
-
-        <n-form-item
-          v-if="['add', 'edit'].includes(modalAction)"
-          label="最大可容纳人数"
-          path="max"
-          :rule="{
-            required: true,
-            message: '最大可容纳人数',
-            trigger: ['input', 'blur'],
-          }"
-        >
-          <n-input v-model:value="modalForm.max"  />
+          <n-input v-model:value="modalForm.mobile" />
         </n-form-item>
         <n-form-item
           v-if="['add', 'edit'].includes(modalAction)"
@@ -89,70 +62,91 @@
             trigger: ['input', 'blur'],
           }"
         >
-          <n-input v-model:value="modalForm.output"  />
+          <n-input v-model:value="modalForm.output" />
+        </n-form-item>
+        <n-form-item label="日产" path="output">
+          <n-input v-if="['add'].includes(modalAction)" v-model:value="modalForm.output" disabled />
+          <n-input
+            v-if="['edit'].includes(modalAction)"
+            v-model:value="modalForm.output"
+            disabled
+          />
+        </n-form-item>
+        <n-form-item
+          v-if="['add', 'edit'].includes(modalAction)"
+          label="最大开启数量"
+          path="max"
+          :rule="{
+            required: true,
+            message: '最大开启数量',
+            trigger: ['input', 'blur'],
+          }"
+        >
+          <n-input v-model:value="modalForm.max" />
         </n-form-item>
         <n-form-item v-if="modalAction === 'add'" label="状态" path="status">
-          <n-switch v-model:value="modalForm.status"
-                    checked-value="1"
-                    unchecked-value="0"
-          >
+          <n-switch v-model:value="modalForm.status" checked-value="1" unchecked-value="0">
             <template #checked>上架</template>
             <template #unchecked>下架</template>
           </n-switch>
         </n-form-item>
       </n-form>
-
     </MeModal>
   </CommonPage>
 </template>
 
 <script setup>
-import { NAvatar, NButton, NSwitch, NTag } from 'naive-ui'
+import { NAvatar, NButton, NSwitch } from 'naive-ui'
 import { formatDateTime } from '@/utils'
-import { MeCrud, MeQueryItem, MeModal,CustomUpload } from '@/components'
+import { MeCrud, MeModal, CustomUpload } from '@/components'
 import { useCrud } from '@/composables'
 import api from './api'
 
 defineOptions({ name: 'UserMgt' })
 
 const $table = ref(null)
-/** QueryBar筛选参数（可选） */
-const queryItems = ref({
-  balanceSort: 1
-})
 
 onMounted(() => {
   $table.value?.handleSearch()
 })
 
-const roles = ref([])
-api.getAllRoles().then(({ data = [] }) => (roles.value = data))
-
 const columns = [
-  { title: '矿场名称', key: 'name', width: 100, ellipsis: { tooltip: true } },
-  { title: '最大可容纳人数', key: 'max', width: 100, ellipsis: { tooltip: true } },
-  { title: '日产', key: 'singleOuput', width: 100, ellipsis: { tooltip: true },
-    render: (row) =>{
-      return row.singleOuput*86400
-    }
+  {
+    title: '矿场封面',
+    key: 'poster',
+    render: (row) => {
+      return row.singleOuput * 86400
+    },
   },
-  { title: '总产出', key: 'output', width: 50, ellipsis: { tooltip: true },
-  render: (row) =>{
-    return row.output === 0?"无限制":row.output
-  }
+  { title: '矿场名称', key: 'name' },
+  { title: '解锁消耗宝石', key: 'price' },
+  { title: '最大开启数量', key: 'max' },
+  {
+    title: '日产',
+    key: 'singleOuput',
+    ellipsis: { tooltip: true },
+    render: (row) => {
+      return row.singleOuput * 86400
+    },
   },
-  { title: '解锁消耗材料', key: 'price', width: 100, ellipsis: { tooltip: true } },
+  {
+    title: '总产出',
+    key: 'output',
+    ellipsis: { tooltip: true },
+    render: (row) => {
+      return row.output === 0 ? '无限制' : row.output
+    },
+  },
   {
     title: '状态',
     key: 'status',
-    width: 100,
     render: (row) =>
       h(
         NSwitch,
         {
           size: 'small',
           rubberBand: false,
-          value: row.status==='1',
+          value: row.status === '1',
           loading: !!row.enableLoading,
           onUpdateValue: () => handleEnable(row),
         },
@@ -165,7 +159,6 @@ const columns = [
   {
     title: '创建时间',
     key: 'createDate',
-    width: 150,
     render(row) {
       return h('span', formatDateTime(row['reg_date']))
     },
@@ -173,7 +166,6 @@ const columns = [
   {
     title: '操作',
     key: 'actions',
-    width: 50,
     align: 'center',
     fixed: 'right',
     hideInExcel: true,
@@ -191,7 +183,6 @@ const columns = [
             default: () => '编辑',
           }
         ),
-
       ]
     },
   },

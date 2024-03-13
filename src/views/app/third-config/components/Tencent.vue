@@ -1,5 +1,5 @@
 <template>
-  <n-alert type="info" class="mb-16">配置实名认证</n-alert>
+  <n-alert type="info" class="mb-16">配置人脸认证</n-alert>
   <n-form
     ref="formRef"
     label-placement="left"

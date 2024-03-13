@@ -1,11 +1,3 @@
-<!--------------------------------
- - @Author: Ronnie Zhang
- - @LastEditor: Ronnie Zhang
- - @LastEditTime: 2023/12/05 21:28:02
- - @Email: zclzone@outlook.com
- - Copyright © 2023 Ronnie Zhang(大脸怪) | https://isme.top
- --------------------------------->
-
 <template>
   <CommonPage>
     <n-layout has-sider>
@@ -23,9 +15,9 @@
                     MD
                   </n-button>
                   <n-button
-                      dashed
-                      type="primary"
-                      @click="copy(`&lt;img src=&quot;${item.url}&quot; /&gt;`)"
+                    dashed
+                    type="primary"
+                    @click="copy(`&lt;img src=&quot;${item.url}&quot; /&gt;`)"
                   >
                     img
                   </n-button>
@@ -38,11 +30,11 @@
       </n-layout-sider>
       <n-layout-content content-style="padding: 24px;">
         <n-upload
-            class="mx-auto w-[75%] p-20 text-center"
-            :custom-request="handleUpload"
-            :show-file-list="false"
-            accept=".png,.jpg,.jpeg"
-            @before-upload="onBeforeUpload"
+          class="mx-auto w-[75%] p-20 text-center"
+          :custom-request="handleUpload"
+          :show-file-list="false"
+          accept=".png,.jpg,.jpeg"
+          @before-upload="onBeforeUpload"
         >
           <n-upload-dragger>
             <div class="h-150 f-c-c flex-col">
@@ -53,8 +45,6 @@
         </n-upload>
       </n-layout-content>
     </n-layout>
-
-
   </CommonPage>
 </template>
 
@@ -64,8 +54,7 @@ defineOptions({ name: 'ImgUpload' })
 
 const { copy, copied } = useClipboard()
 
-const imgList = reactive([
-])
+const imgList = reactive([])
 
 watch(copied, (val) => {
   val && $message.success('已复制到剪切板')

@@ -1,5 +1,5 @@
 <template>
-  <AppPage show-footer>
+  <AppPage>
     <n-grid class="mt-12" cols="2" :x-gap="12" :y-gap="8" item-responsive responsive="screen">
       <n-grid-item span="2 m:2 l:1">
         <n-card title="基础配置">
@@ -38,11 +38,14 @@
             label-width="130"
             require-mark-placement="right-hanging"
           >
-            <n-form-item label="日产模式" path="inputValue">
-              <n-switch>
-                <template #checked>卡牌数量</template>
-                <template #unchecked>单卡日产</template>
-              </n-switch>
+            <n-form-item label="日产模式">
+              <n-radio-group v-model:value="value" name="radiogroup">
+                <n-space>
+                  <n-radio value="1">卡牌数量</n-radio>
+                  <n-radio value="0">单卡日产</n-radio>
+                  <n-radio value="2">质押半个月</n-radio>
+                </n-space>
+              </n-radio-group>
             </n-form-item>
             <n-form-item label="日产总量(<3)" path="inputValue">
               <n-input placeholder="请输入日产量" />

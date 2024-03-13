@@ -105,16 +105,16 @@ const title = import.meta.env.VITE_TITLE
 const loginInfo = ref({
   username: '',
   password: '',
-  uuid:''
+  uuid: '',
 })
 
 const captchaUrl = ref('')
 
 const initCaptcha = throttle(async () => {
-  const {img,code,uuid} = await api.getImg()
-  if(code === 200){
-    captchaUrl.value = 'data:image/gif;base64,' + img;
-    loginInfo.value.uuid = uuid;
+  const { img, code, uuid } = await api.getImg()
+  if (code === 200) {
+    captchaUrl.value = 'data:image/gif;base64,' + img
+    loginInfo.value.uuid = uuid
   }
 }, 500)
 
@@ -125,22 +125,21 @@ if (localLoginInfo) {
 }
 initCaptcha()
 
-function quickLogin() {
-  loginInfo.value.username = 'admin'
-  loginInfo.value.password = '123456'
-  handleLogin(true)
-}
-
 const isRemember = useStorage('isRemember', true)
 const loading = ref(false)
-async function handleLogin(isQuick) {
-  const { username, password, captcha,uuid } = loginInfo.value
+async function handleLogin() {
+  const { username, password, captcha, uuid } = loginInfo.value
   if (!username || !password) return $message.warning('请输入用户名和密码')
   if (!captcha) return $message.warning('请输入验证码')
   try {
     loading.value = true
     $message.loading('正在验证，请稍后...', { key: 'login' })
-    const { data } = await api.login({ username, password: password.toString(), code:captcha, uuid })
+    const { data } = await api.login({
+      username,
+      password: password.toString(),
+      code: captcha,
+      uuid,
+    })
     if (isRemember.value) {
       lStorage.set('loginInfo', { username, password })
     } else {

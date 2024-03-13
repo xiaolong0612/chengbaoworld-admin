@@ -3,49 +3,18 @@
     <template #action>
       <n-button type="primary" @click="handleAdd()">
         <i class="i-material-symbols:add mr-4 text-18" />
-        创建新用户
+        创建卡牌
       </n-button>
     </template>
 
-    <MeCrud
-      ref="$table"
-      v-model:query-items="queryItems"
-      :scroll-x="2500"
-      :columns="columns"
-      :get-data="api.read"
-    >
-      <MeQueryItem label="关键词搜索">
-        <n-input
-          v-model:value="queryItems.nickname"
-          type="text"
-          placeholder="请输入 昵称 / 账号 / ID"
-          clearable
-        />
-      </MeQueryItem>
-      <MeQueryItem label="宝石排序">
-        <n-select v-model:value="queryItems.balanceSort" clearable :options="[
-            { label: '宝石降序', value: 1 },
-            { label: '宝石升序', value: 2 },
-        ]" />
-      </MeQueryItem>
-
-      <MeQueryItem label="用户状态">
+    <MeCrud ref="$table" v-model:query-items="queryItems" :columns="columns" :get-data="api.read">
+      <MeQueryItem label="上架状态">
         <n-select
           v-model:value="queryItems.status"
           clearable
           :options="[
             { label: '启用', value: 1 },
             { label: '停用', value: 0 },
-          ]"
-        />
-      </MeQueryItem>
-      <MeQueryItem label="认证状态">
-        <n-select
-          v-model:value="queryItems.cert"
-          clearable
-          :options="[
-            { label: '已认证', value: 1 },
-            { label: '未认证', value: 0 },
           ]"
         />
       </MeQueryItem>
@@ -60,166 +29,168 @@
         :model="modalForm"
         :disabled="modalAction === 'view'"
       >
-
         <n-form-item
-          label="头像"
-          path="avater"
+          label="封面"
+          path="poster"
           :rule="{
             required: true,
-            message: '请上传头像',
+            message: '请上传封面',
             trigger: ['input', 'blur'],
           }"
         >
           <CustomUpload
             v-if="['add', 'edit'].includes(modalAction)"
-            label="头像"
-            :value="modalForm.avatar"
-            path="mobile"
-            :rule="{
-            required: true,
-            message: '请上传头像',
-            trigger: ['input', 'blur'],
-          }"
-          >
-          </CustomUpload>
+            :value="modalForm.poster"
+          ></CustomUpload>
         </n-form-item>
         <n-form-item
-          label="用户名"
-          path="username"
+          label="标题"
+          path="title"
           :rule="{
             required: true,
-            message: '请输入用户名',
+            message: '请输入标题',
             trigger: ['input', 'blur'],
           }"
         >
-          <n-input v-model:value="modalForm.username" :disabled="modalAction !== 'add'" />
+          <n-input v-model:value="modalForm.title" :disabled="modalAction !== 'add'" />
+        </n-form-item>
+        <n-form-item
+          label="价格"
+          path="price"
+          :rule="{
+            required: true,
+            message: '请输入价格',
+            trigger: ['input', 'blur'],
+          }"
+        >
+          <n-input v-model:value="modalForm.price" :disabled="modalAction !== 'add'" />
+        </n-form-item>
+        <n-form-item
+          label="类型"
+          path="type"
+          :rule="{
+            required: true,
+            message: '请选择类型',
+            trigger: ['change'],
+          }"
+        >
+          <n-radio-group v-model:value="modalForm.type" name="type">
+            <n-space>
+              <n-radio value="1">闪卡</n-radio>
+              <n-radio value="0">商品卡</n-radio>
+            </n-space>
+          </n-radio-group>
         </n-form-item>
         <n-form-item
           v-if="['add', 'edit'].includes(modalAction)"
-          label="手机号"
+          label="发行量"
           path="mobile"
           :rule="{
             required: true,
-            message: '请输入手机号',
+            message: '请输入发行量',
             trigger: ['input', 'blur'],
           }"
         >
-          <n-input v-model:value="modalForm.mobile"  />
+          <n-input v-model:value="modalForm.mobile" :disabled="['edit'].includes(modalAction)" />
         </n-form-item>
         <n-form-item
-          v-if="['add', 'reset'].includes(modalAction)"
-          :label="modalAction === 'reset' ? '重置密码' : '初始密码'"
-          path="password"
+          v-if="['add', 'edit'].includes(modalAction)"
+          label="有效期"
+          path="mobile"
           :rule="{
             required: true,
-            message: '请输入密码',
+            message: '请输入有效期',
             trigger: ['input', 'blur'],
           }"
         >
-          <n-input v-model:value="modalForm.password" />
-        </n-form-item>
-
-        <n-form-item v-if="['add', 'setRole'].includes(modalAction)" label="角色" path="roleIds">
           <n-select
-            v-model:value="modalForm.roleIds"
-            :options="roles"
-            label-field="name"
-            value-field="id"
+            v-model:value="modalForm.mobile"
             clearable
-            filterable
-            multiple
+            :disabled="['edit'].includes(modalAction)"
+            :options="[
+              { label: '永久', value: '0' },
+              { label: '月卡', value: '1' },
+              { label: '季卡', value: '3' },
+              { label: '年卡', value: '12' },
+            ]"
           />
         </n-form-item>
-        <n-form-item v-if="modalAction === 'add'" label="状态" path="enable">
-          <n-switch v-model:value="modalForm.enable">
+        <n-form-item
+          v-if="['add', 'edit'].includes(modalAction)"
+          label="日产量"
+          path="mobile"
+          :rule="{
+            required: true,
+            message: '请输入日产量',
+            trigger: ['input', 'blur'],
+          }"
+        >
+          <n-input v-model:value="modalForm.mobile" />
+        </n-form-item>
+        <n-form-item
+          label="排序"
+          path="sort"
+          :rule="{
+            required: true,
+            message: '请输入排序',
+            trigger: ['input', 'blur'],
+          }"
+        >
+          <n-input v-model:value="modalForm.sort" :disabled="['edit'].includes(modalAction)" />
+        </n-form-item>
+
+        <n-form-item v-if="modalAction === 'add'" label="状态" path="status">
+          <n-switch v-model:value="modalForm.status" checked-value="1" unchecked-value="0">
             <template #checked>启用</template>
             <template #unchecked>停用</template>
           </n-switch>
         </n-form-item>
       </n-form>
-      <n-alert v-if="modalAction === 'add'" type="warning" closable>
-        详细信息需由用户本人补充修改
-      </n-alert>
     </MeModal>
   </CommonPage>
 </template>
 
 <script setup>
-import { NAvatar, NButton, NSwitch, NTag } from 'naive-ui'
+import { NButton, NSwitch, NImage } from 'naive-ui'
 import { formatDateTime } from '@/utils'
-import { MeCrud, MeQueryItem, MeModal,CustomUpload } from '@/components'
+import { MeCrud, MeQueryItem, MeModal, CustomUpload } from '@/components'
 import { useCrud } from '@/composables'
 import api from './api'
 
-defineOptions({ name: 'UserMgt' })
+defineOptions({ name: 'CardList' })
 
 const $table = ref(null)
 /** QueryBar筛选参数（可选） */
 const queryItems = ref({
-  balanceSort: 1
+  balanceSort: 1,
 })
 
 onMounted(() => {
   $table.value?.handleSearch()
 })
 
-const roles = ref([])
-api.getAllRoles().then(({ data = [] }) => (roles.value = data))
-
 const columns = [
-  { title: '昵称', key: 'nickname', width: 150, render: ({ avatar, nickname }) =>
-      [
-        h(NAvatar, {
-          size: 'medium',
-          src: avatar,
-        }),
-        h('span', nickname),
-      ]},
-  { title: '手机号', key: 'mobile', width: 150, ellipsis: { tooltip: true } },
-  /*  {
-      title: '角色',
-      key: 'roles',
-      width: 200,
-      ellipsis: { tooltip: true },
-      render: ({ roles }) => {
-        if (roles?.length) {
-          return roles.map((item, index) =>
-            h(
-              NTag,
-              { type: 'success', style: index > 0 ? 'margin-left: 8px;' : '' },
-              { default: () => item.name }
-            )
-          )
-        }
-        return '暂无角色'
-      },
-    },
-    {
-      title: '性别',
-      key: 'gender',
-      width: 80,
-      render: ({ gender }) => genders.find((item) => gender === item.value)?.label ?? '',
-    },*/
-  { title: '余额', key: 'balance', width: 150, ellipsis: { tooltip: true } },
-  { title: '冻结宝石', key: 'frezon_balance', width: 150, ellipsis: { tooltip: true } },
-  { title: '微信', key: 'wechat', width: 150, ellipsis: { tooltip: true } },
-  { title: 'QQ', key: 'qq', width: 150, ellipsis: { tooltip: true } },
-  { title: '分佣比例', key: 'rate', width: 150, },
-  { title: '允许赠送', key: 'is_give', width: 50,},
-  { title: '在线', key: 'online', width: 50,
-    render: (row) =>
-      h(
-        NTag,
-        {
-          type: !row.online ? '' : 'success',
-        },
-        !row.online ? '离线' : '在线'
-      ),
+  {
+    title: '封面',
+    width: 80,
+    render: ({ poster }) =>
+      h(NImage, {
+        height: '30',
+        src: poster,
+      }),
   },
   {
-    title: '登陆状态',
+    title: '标题',
+    key: 'title',
+  },
+  { title: '价格', key: 'price' },
+  { title: '发行量', key: 'balance' },
+  { title: '库存', key: 'frezon_balance' },
+  { title: '流通量', key: 'wechat' },
+  { title: '日产', key: 'wechat' },
+  {
+    title: '上架状态',
     key: 'status',
-    width: 120,
     render: (row) =>
       h(
         NSwitch,
@@ -237,19 +208,10 @@ const columns = [
       ),
   },
   {
-    title: '注册时间',
+    title: '创建时间',
     key: 'reg_date',
-    width: 180,
     render(row) {
       return h('span', formatDateTime(row['reg_date']))
-    },
-  },
-  {
-    title: '编辑时间',
-    key: 'edit_date',
-    width: 180,
-    render(row) {
-      return h('span', formatDateTime(row['edit_date']))
     },
   },
   {
@@ -331,16 +293,6 @@ async function handleEnable(row) {
   }
 }
 
-function handleOpenRolesSet(row) {
-  const roleIds = row.roles.map((item) => item.id)
-  handleOpen({
-    action: 'setRole',
-    title: '分配角色',
-    row: { id: row.id, username: row.username, roleIds },
-    onOk: onSave,
-  })
-}
-
 const {
   modalRef,
   modalFormRef,
@@ -352,8 +304,8 @@ const {
   handleEdit,
   handleSave,
 } = useCrud({
-  name: '用户',
-  initForm: { enable: true },
+  name: '卡牌',
+  initForm: { type: '1', sort: 0, status: '1' },
   doCreate: api.create,
   doDelete: api.delete,
   doUpdate: api.update,

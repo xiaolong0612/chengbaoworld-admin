@@ -1,11 +1,3 @@
-<!--------------------------------
- - @Author: Ronnie Zhang
- - @LastEditor: Ronnie Zhang
- - @LastEditTime: 2023/12/16 18:49:42
- - @Email: zclzone@outlook.com
- - Copyright © 2023 Ronnie Zhang(大脸怪) | https://isme.top
- --------------------------------->
-
 <template>
   <n-config-provider
     class="wh-full"
@@ -21,7 +13,7 @@
         </KeepAlive>
       </component>
 
-      <LayoutSetting class="fixed right-12 top-1/2 z-999" />
+      <LayoutSetting class="fixed bottom-8 right-12 z-999" />
     </router-view>
   </n-config-provider>
 </template>

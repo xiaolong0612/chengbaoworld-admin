@@ -1,9 +1,5 @@
 <!--------------------------------
- - @Author: Ronnie Zhang
- - @LastEditor: Ronnie Zhang
  - @LastEditTime: 2023/12/16 18:51:10
- - @Email: zclzone@outlook.com
- - Copyright © 2023 Ronnie Zhang(大脸怪) | https://isme.top
  --------------------------------->
 
 <template>
@@ -23,15 +19,6 @@
         :class="isFullscreen ? 'i-fe:minimize' : 'i-fe:maximize'"
         @click="toggle"
       />
-
-<!--      <i
-        class="i-fe:github mr-16 cursor-pointer"
-        @click="handleLinkClick('https://github.com/zclzone/vue-naive-admin/tree/2.x')"
-      />
-      <i
-        class="i-me:gitee mr-16 cursor-pointer"
-        @click="handleLinkClick('https://gitee.com/isme-admin/vue-naive-admin/tree/2.x')"
-      />-->
       <UserAvatar />
     </div>
   </AppCard>

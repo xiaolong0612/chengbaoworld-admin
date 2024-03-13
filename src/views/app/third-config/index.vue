@@ -1,5 +1,5 @@
 <template>
-  <AppPage show-footer>
+  <AppPage>
     <n-card>
       <n-tabs type="line" animated>
         <n-tab-pane name="aliCloud" tab="阿里云">

@@ -1,153 +1,49 @@
 <template>
   <CommonPage>
-    <template #action>
-      <n-button type="primary" @click="handleAdd()">
-        <i class="i-material-symbols:add mr-4 text-18" />
-        创建新用户
-      </n-button>
-    </template>
-
     <MeCrud
       ref="$table"
       v-model:query-items="queryItems"
-      :scroll-x="2500"
+      :scroll-x="1200"
       :columns="columns"
       :get-data="api.read"
     >
-      <MeQueryItem label="关键词搜索">
+      <MeQueryItem label="会员账号">
         <n-input
           v-model:value="queryItems.nickname"
           type="text"
-          placeholder="请输入 昵称 / 账号 / ID"
+          placeholder="请输入 账号 / ID"
           clearable
         />
       </MeQueryItem>
-      <MeQueryItem label="宝石排序">
-        <n-select v-model:value="queryItems.balanceSort" clearable :options="[
-            { label: '宝石降序', value: 1 },
-            { label: '宝石升序', value: 2 },
-        ]" />
-      </MeQueryItem>
-
-      <MeQueryItem label="用户状态">
+      <MeQueryItem label="矿场名称">
         <n-select
-          v-model:value="queryItems.status"
+          v-model:value="queryItems.balanceSort"
           clearable
           :options="[
-            { label: '启用', value: 1 },
-            { label: '停用', value: 0 },
+            { label: '矿1', value: 1 },
+            { label: '矿2', value: 2 },
           ]"
         />
       </MeQueryItem>
-      <MeQueryItem label="认证状态">
+      <MeQueryItem label="矿场状态">
         <n-select
-          v-model:value="queryItems.cert"
+          v-model:value="queryItems.balanceSort"
           clearable
           :options="[
-            { label: '已认证', value: 1 },
-            { label: '未认证', value: 0 },
+            { label: '使用中', value: 1 },
+            { label: '手动停产', value: 2 },
+            { label: '已过期', value: 3 },
           ]"
         />
       </MeQueryItem>
     </MeCrud>
-
-    <MeModal ref="modalRef" width="520px">
-      <n-form
-        ref="modalFormRef"
-        label-placement="left"
-        label-align="left"
-        :label-width="80"
-        :model="modalForm"
-        :disabled="modalAction === 'view'"
-      >
-
-        <n-form-item
-          label="头像"
-          path="avater"
-          :rule="{
-            required: true,
-            message: '请上传头像',
-            trigger: ['input', 'blur'],
-          }"
-        >
-          <CustomUpload
-            v-if="['add', 'edit'].includes(modalAction)"
-            label="头像"
-            :value="modalForm.avatar"
-            path="mobile"
-            :rule="{
-            required: true,
-            message: '请上传头像',
-            trigger: ['input', 'blur'],
-          }"
-          >
-          </CustomUpload>
-        </n-form-item>
-        <n-form-item
-          label="用户名"
-          path="username"
-          :rule="{
-            required: true,
-            message: '请输入用户名',
-            trigger: ['input', 'blur'],
-          }"
-        >
-          <n-input v-model:value="modalForm.username" :disabled="modalAction !== 'add'" />
-        </n-form-item>
-        <n-form-item
-          v-if="['add', 'edit'].includes(modalAction)"
-          label="手机号"
-          path="mobile"
-          :rule="{
-            required: true,
-            message: '请输入手机号',
-            trigger: ['input', 'blur'],
-          }"
-        >
-          <n-input v-model:value="modalForm.mobile"  />
-        </n-form-item>
-        <n-form-item
-          v-if="['add', 'reset'].includes(modalAction)"
-          :label="modalAction === 'reset' ? '重置密码' : '初始密码'"
-          path="password"
-          :rule="{
-            required: true,
-            message: '请输入密码',
-            trigger: ['input', 'blur'],
-          }"
-        >
-          <n-input v-model:value="modalForm.password" />
-        </n-form-item>
-
-        <n-form-item v-if="['add', 'setRole'].includes(modalAction)" label="角色" path="roleIds">
-          <n-select
-            v-model:value="modalForm.roleIds"
-            :options="roles"
-            label-field="name"
-            value-field="id"
-            clearable
-            filterable
-            multiple
-          />
-        </n-form-item>
-        <n-form-item v-if="modalAction === 'add'" label="状态" path="enable">
-          <n-switch v-model:value="modalForm.enable">
-            <template #checked>启用</template>
-            <template #unchecked>停用</template>
-          </n-switch>
-        </n-form-item>
-      </n-form>
-      <n-alert v-if="modalAction === 'add'" type="warning" closable>
-        详细信息需由用户本人补充修改
-      </n-alert>
-    </MeModal>
   </CommonPage>
 </template>
 
 <script setup>
 import { NAvatar, NButton, NSwitch, NTag } from 'naive-ui'
 import { formatDateTime } from '@/utils'
-import { MeCrud, MeQueryItem, MeModal,CustomUpload } from '@/components'
+import { MeCrud, MeQueryItem, MeModal, CustomUpload } from '@/components'
 import { useCrud } from '@/composables'
 import api from './api'
 
@@ -156,57 +52,36 @@ defineOptions({ name: 'UserMgt' })
 const $table = ref(null)
 /** QueryBar筛选参数（可选） */
 const queryItems = ref({
-  balanceSort: 1
+  balanceSort: 1,
 })
 
 onMounted(() => {
   $table.value?.handleSearch()
 })
 
-const roles = ref([])
-api.getAllRoles().then(({ data = [] }) => (roles.value = data))
-
 const columns = [
-  { title: '昵称', key: 'nickname', width: 150, render: ({ avatar, nickname }) =>
-      [
-        h(NAvatar, {
-          size: 'medium',
-          src: avatar,
-        }),
-        h('span', nickname),
-      ]},
-  { title: '手机号', key: 'mobile', width: 150, ellipsis: { tooltip: true } },
-  /*  {
-      title: '角色',
-      key: 'roles',
-      width: 200,
-      ellipsis: { tooltip: true },
-      render: ({ roles }) => {
-        if (roles?.length) {
-          return roles.map((item, index) =>
-            h(
-              NTag,
-              { type: 'success', style: index > 0 ? 'margin-left: 8px;' : '' },
-              { default: () => item.name }
-            )
-          )
-        }
-        return '暂无角色'
-      },
-    },
-    {
-      title: '性别',
-      key: 'gender',
-      width: 80,
-      render: ({ gender }) => genders.find((item) => gender === item.value)?.label ?? '',
-    },*/
-  { title: '余额', key: 'balance', width: 150, ellipsis: { tooltip: true } },
-  { title: '冻结宝石', key: 'frezon_balance', width: 150, ellipsis: { tooltip: true } },
-  { title: '微信', key: 'wechat', width: 150, ellipsis: { tooltip: true } },
-  { title: 'QQ', key: 'qq', width: 150, ellipsis: { tooltip: true } },
-  { title: '分佣比例', key: 'rate', width: 150, },
-  { title: '允许赠送', key: 'is_give', width: 50,},
-  { title: '在线', key: 'online', width: 50,
+  {
+    title: '矿场名称',
+    key: 'nickname',
+    width: 150,
+    render: ({ avatar, nickname }) => [
+      h(NAvatar, {
+        size: 'medium',
+        src: avatar,
+      }),
+      h('span', nickname),
+    ],
+  },
+  { title: '会员账号', key: 'mobile' },
+  { title: '总产出', key: 'balance' },
+  { title: '已产出', key: 'frezon_balance' },
+  { title: '一级分佣', key: 'wechat' },
+  { title: '二级分佣', key: 'qq' },
+  { title: '三级分佣', key: 'rate' },
+  { title: '有效期', key: 'is_give' },
+  {
+    title: '矿场状态',
+    key: 'online',
     render: (row) =>
       h(
         NTag,
@@ -217,27 +92,7 @@ const columns = [
       ),
   },
   {
-    title: '登陆状态',
-    key: 'status',
-    width: 120,
-    render: (row) =>
-      h(
-        NSwitch,
-        {
-          size: 'small',
-          rubberBand: false,
-          value: row.enable,
-          loading: !!row.enableLoading,
-          onUpdateValue: () => handleEnable(row),
-        },
-        {
-          checked: () => '允许',
-          unchecked: () => '禁止',
-        }
-      ),
-  },
-  {
-    title: '注册时间',
+    title: '开启时间',
     key: 'reg_date',
     width: 180,
     render(row) {
@@ -245,11 +100,11 @@ const columns = [
     },
   },
   {
-    title: '编辑时间',
-    key: 'edit_date',
+    title: '暂停时间',
+    key: 'reg_date',
     width: 180,
     render(row) {
-      return h('span', formatDateTime(row['edit_date']))
+      return h('span', formatDateTime(row['reg_date']))
     },
   },
   {

@@ -3,7 +3,7 @@
     <template #action>
       <n-button type="primary" @click="handleAdd()">
         <i class="i-material-symbols:add mr-4 text-18" />
-        创建新用户
+        创建新店长
       </n-button>
     </template>
 
@@ -23,10 +23,14 @@
         />
       </MeQueryItem>
       <MeQueryItem label="宝石排序">
-        <n-select v-model:value="queryItems.balanceSort" clearable :options="[
+        <n-select
+          v-model:value="queryItems.balanceSort"
+          clearable
+          :options="[
             { label: '宝石降序', value: 1 },
             { label: '宝石升序', value: 2 },
-        ]" />
+          ]"
+        />
       </MeQueryItem>
 
       <MeQueryItem label="用户状态">
@@ -56,70 +60,11 @@
         ref="modalFormRef"
         label-placement="left"
         label-align="left"
-        :label-width="80"
+        :label-width="120"
         :model="modalForm"
         :disabled="modalAction === 'view'"
       >
-
-        <n-form-item
-          label="头像"
-          path="avater"
-          :rule="{
-            required: true,
-            message: '请上传头像',
-            trigger: ['input', 'blur'],
-          }"
-        >
-          <CustomUpload
-            v-if="['add', 'edit'].includes(modalAction)"
-            label="头像"
-            :value="modalForm.avatar"
-            path="mobile"
-            :rule="{
-            required: true,
-            message: '请上传头像',
-            trigger: ['input', 'blur'],
-          }"
-          >
-          </CustomUpload>
-        </n-form-item>
-        <n-form-item
-          label="用户名"
-          path="username"
-          :rule="{
-            required: true,
-            message: '请输入用户名',
-            trigger: ['input', 'blur'],
-          }"
-        >
-          <n-input v-model:value="modalForm.username" :disabled="modalAction !== 'add'" />
-        </n-form-item>
-        <n-form-item
-          v-if="['add', 'edit'].includes(modalAction)"
-          label="手机号"
-          path="mobile"
-          :rule="{
-            required: true,
-            message: '请输入手机号',
-            trigger: ['input', 'blur'],
-          }"
-        >
-          <n-input v-model:value="modalForm.mobile"  />
-        </n-form-item>
-        <n-form-item
-          v-if="['add', 'reset'].includes(modalAction)"
-          :label="modalAction === 'reset' ? '重置密码' : '初始密码'"
-          path="password"
-          :rule="{
-            required: true,
-            message: '请输入密码',
-            trigger: ['input', 'blur'],
-          }"
-        >
-          <n-input v-model:value="modalForm.password" />
-        </n-form-item>
-
-        <n-form-item v-if="['add', 'setRole'].includes(modalAction)" label="角色" path="roleIds">
+        <n-form-item v-if="['add', 'setRole'].includes(modalAction)" label="会员" path="roleIds">
           <n-select
             v-model:value="modalForm.roleIds"
             :options="roles"
@@ -130,16 +75,35 @@
             multiple
           />
         </n-form-item>
-        <n-form-item v-if="modalAction === 'add'" label="状态" path="enable">
+        <n-form-item
+          label="游戏分佣比例%"
+          path="nickname"
+          :rule="{
+            required: true,
+            message: '请输入游戏分佣比例',
+            trigger: ['input', 'blur'],
+          }"
+        >
+          <n-input
+            v-model:value="modalForm.nickname"
+            :disabled="['cert', 'card', 'balance'].includes(modalAction)"
+          />
+        </n-form-item>
+
+        <n-form-item v-if="['add', 'edit'].includes(modalAction)" label="支付宝收款码">
+          <CustomUpload v-model:value="modalForm.avatar"></CustomUpload>
+        </n-form-item>
+
+        <n-form-item v-if="['add', 'edit'].includes(modalAction)" label="微信收款码">
+          <CustomUpload v-model:value="modalForm.avatar"></CustomUpload>
+        </n-form-item>
+        <n-form-item label="状态" path="enable">
           <n-switch v-model:value="modalForm.enable">
-            <template #checked>启用</template>
-            <template #unchecked>停用</template>
+            <template #checked>显示</template>
+            <template #unchecked>隐藏</template>
           </n-switch>
         </n-form-item>
       </n-form>
-      <n-alert v-if="modalAction === 'add'" type="warning" closable>
-        详细信息需由用户本人补充修改
-      </n-alert>
     </MeModal>
   </CommonPage>
 </template>
@@ -147,34 +111,35 @@
 <script setup>
 import { NAvatar, NButton, NSwitch, NTag } from 'naive-ui'
 import { formatDateTime } from '@/utils'
-import { MeCrud, MeQueryItem, MeModal,CustomUpload } from '@/components'
+import { MeCrud, MeQueryItem, MeModal, CustomUpload } from '@/components'
 import { useCrud } from '@/composables'
 import api from './api'
 
-defineOptions({ name: 'UserMgt' })
+defineOptions({ name: 'StoreList' })
 
 const $table = ref(null)
 /** QueryBar筛选参数（可选） */
 const queryItems = ref({
-  balanceSort: 1
+  balanceSort: 1,
 })
 
 onMounted(() => {
   $table.value?.handleSearch()
 })
 
-const roles = ref([])
-api.getAllRoles().then(({ data = [] }) => (roles.value = data))
-
 const columns = [
-  { title: '昵称', key: 'nickname', width: 150, render: ({ avatar, nickname }) =>
-      [
-        h(NAvatar, {
-          size: 'medium',
-          src: avatar,
-        }),
-        h('span', nickname),
-      ]},
+  {
+    title: '昵称',
+    key: 'nickname',
+    width: 150,
+    render: ({ avatar, nickname }) => [
+      h(NAvatar, {
+        size: 'medium',
+        src: avatar,
+      }),
+      h('span', nickname),
+    ],
+  },
   { title: '手机号', key: 'mobile', width: 150, ellipsis: { tooltip: true } },
   /*  {
       title: '角色',
@@ -204,9 +169,12 @@ const columns = [
   { title: '冻结宝石', key: 'frezon_balance', width: 150, ellipsis: { tooltip: true } },
   { title: '微信', key: 'wechat', width: 150, ellipsis: { tooltip: true } },
   { title: 'QQ', key: 'qq', width: 150, ellipsis: { tooltip: true } },
-  { title: '分佣比例', key: 'rate', width: 150, },
-  { title: '允许赠送', key: 'is_give', width: 50,},
-  { title: '在线', key: 'online', width: 50,
+  { title: '分佣比例', key: 'rate', width: 150 },
+  { title: '允许赠送', key: 'is_give', width: 50 },
+  {
+    title: '在线',
+    key: 'online',
+    width: 50,
     render: (row) =>
       h(
         NTag,
@@ -352,7 +320,7 @@ const {
   handleEdit,
   handleSave,
 } = useCrud({
-  name: '用户',
+  name: '店长',
   initForm: { enable: true },
   doCreate: api.create,
   doDelete: api.delete,

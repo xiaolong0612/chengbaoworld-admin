@@ -9,7 +9,7 @@
 <template>
   <CommonPage>
     <template #action>
-      <n-button  type="primary" @click="handleAdd()">
+      <n-button type="primary" @click="handleAdd()">
         <i class="i-material-symbols:add mr-4 text-18" />
         创建新用户
       </n-button>
@@ -31,7 +31,7 @@
         />
       </MeQueryItem>
 
-<!--
+      <!--
       <MeQueryItem label="性别" :label-width="50">
         <n-select v-model:value="queryItems.sex" clearable :options="genders" />
       </MeQueryItem>
@@ -94,16 +94,13 @@
           />
         </n-form-item>
         <n-form-item v-if="modalAction === 'add'" label="状态" path="status">
-          <n-switch v-model:value="modalForm.status"
-                    checked-value="0"
-                    unchecked-value="1"
-          >
+          <n-switch v-model:value="modalForm.status" checked-value="0" unchecked-value="1">
             <template #checked>启用</template>
             <template #unchecked>停用</template>
           </n-switch>
         </n-form-item>
       </n-form>
-<!--      <n-alert v-if="modalAction === 'add'" type="warning" closable>
+      <!--      <n-alert v-if="modalAction === 'add'" type="warning" closable>
         详细信息需由用户本人补充修改
       </n-alert>-->
     </MeModal>
@@ -132,10 +129,12 @@ onMounted(() => {
   { label: '女', value: '1' },
 ]*/
 const roles = ref([])
-api.getAllRoles().then((data) => {roles.value = data.roles;})
+api.getAllRoles().then((data) => {
+  roles.value = data.roles
+})
 
 const columns = [
-/*  {
+  /*  {
     title: '头像',
     key: 'avatar',
     width: 80,
@@ -164,7 +163,7 @@ const columns = [
       return '暂无角色'
     },
   },
-/*  {
+  /*  {
     title: '性别',
     key: 'sex',
     width: 80,
@@ -189,7 +188,7 @@ const columns = [
         {
           size: 'small',
           rubberBand: false,
-          value: row.status==="0",
+          value: row.status === '0',
           loading: !!row.enableLoading,
           onUpdateValue: () => handleEnable(row),
         },
@@ -256,7 +255,7 @@ const columns = [
 async function handleEnable(row) {
   row.enableLoading = true
   try {
-    await api.updateStatus({ userId: row.userId, status: row.status=="1"?"0":"1" })
+    await api.updateStatus({ userId: row.userId, status: row.status == '1' ? '0' : '1' })
     row.enableLoading = false
     $message.success('操作成功')
     $table.value?.handleSearch()

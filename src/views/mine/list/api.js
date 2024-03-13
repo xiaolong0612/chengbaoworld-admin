@@ -5,6 +5,4 @@ export default {
   read: (params = {}) => request.get('/busi/mine/list', { params }),
   update: (data) => request.patch(`/user/${data.id}`, data),
   resetPwd: (id, data) => request.patch(`/user/password/reset/${id}`, data),
-
-  getAllRoles: () => request.get('/role?enable=1'),
 }

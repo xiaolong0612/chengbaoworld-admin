@@ -1,13 +1,5 @@
-/**********************************
- * @FilePath: common.js
- * @Author: Ronnie Zhang
- * @LastEditor: Ronnie Zhang
- * @LastEditTime: 2023/12/04 22:45:46
- * @Email: zclzone@outlook.com
- * Copyright © 2023 Ronnie Zhang(大脸怪) | https://isme.top
- **********************************/
-
 import dayjs from 'dayjs'
+import { isUrl } from './is.js'
 
 /**
  * @desc  格式化时间
@@ -104,4 +96,32 @@ export function useResize(el, cb) {
   })
   observer.observe(el)
   return observer
+}
+
+/**
+ * @param {string} url
+ * @returns {Object}
+ */
+export function getQueryObject(url) {
+  url = url == null ? window.location.href : url
+  const search = url.substring(url.lastIndexOf('?') + 1)
+  const obj = {}
+  const reg = /([^?&=]+)=([^?&=]*)/g
+  search.replace(reg, (rs, $1, $2) => {
+    const name = decodeURIComponent($1)
+    let val = decodeURIComponent($2)
+    val = String(val)
+    obj[name] = val
+    return rs
+  })
+  return obj
+}
+
+/**
+ * @param {string} url
+ * @returns {Object}
+ */
+export function getFilePath(url) {
+  if (isUrl(url)) return url
+  else return import.meta.env.VITE_PROXY_TARGET + url
 }

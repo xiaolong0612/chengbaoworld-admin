@@ -1,11 +1,9 @@
 <script setup>
-import { computed,ref } from 'vue'
+import { ref } from 'vue'
 const emit = defineEmits(['update:value'])
 
 const token = JSON.parse(localStorage.getItem('vue-naivue-admin_auth'))
 const apiUrl = import.meta.env.VITE_PROXY_TARGET
-
-
 
 const props = defineProps({
   value: {
@@ -13,33 +11,27 @@ const props = defineProps({
     default: '',
   },
 })
-const fileList = ref(props.value?[{
-  url: props.value,
-  status: 'finished',
-}]:[]);
+const fileList = ref(
+  props.value
+    ? [
+        {
+          url: props.value,
+          status: 'finished',
+        },
+      ]
+    : []
+)
 
-watchEffect(
-    () => { fileList.value = props.value?[{
-      url: props.value,
-      status: 'finished',
-    }]:[] }
-);
-
-/*const fileComputed = computed(() => {
-  console.log(props)
-  if (props.value) {
-    fileList.value = [
-      {
-        url: props.value,
-        status: 'finished',
-      },
-    ]
-
-  } else {
-    fileList.value = []
-  }
-  return fileList.value
-})*/
+watchEffect(() => {
+  fileList.value = props.value
+    ? [
+        {
+          url: props.value,
+          status: 'finished',
+        },
+      ]
+    : []
+})
 
 const handleFinish = ({ event }) => {
   const result = JSON.parse(event.target.response)
@@ -49,7 +41,6 @@ const handleFinish = ({ event }) => {
 }
 </script>
 <template>
-
   <n-upload
     :action="apiUrl + '/api/resource/minio/monoFileUpload'"
     :default-file-list="fileList"

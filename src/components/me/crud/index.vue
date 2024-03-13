@@ -95,7 +95,15 @@ const emit = defineEmits(['update:queryItems', 'onChecked', 'onDataChange'])
 const loading = ref(false)
 const initQuery = { ...props.queryItems }
 const tableData = ref([])
-const pagination = reactive({ page: 1, pageSize: 10 })
+const pagination = reactive({
+  page: 1,
+  pageSize: 15,
+  showSizePicker: true,
+  pageSizes: [10, 15, 20, 25, 30, 50],
+  prefix({ itemCount }) {
+    return `共计 ${itemCount} 条`
+  },
+})
 
 async function handleQuery() {
   try {
@@ -105,7 +113,7 @@ async function handleQuery() {
     if (props.isPagination && props.remote) {
       paginationParams = { pageNum: pagination.page, pageSize: pagination.pageSize }
     }
-    const { rows,total } = await props.getData({
+    const { rows, total } = await props.getData({
       ...props.queryItems,
       ...paginationParams,
     })

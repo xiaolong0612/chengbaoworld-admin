@@ -23,10 +23,14 @@
         />
       </MeQueryItem>
       <MeQueryItem label="宝石排序">
-        <n-select v-model:value="queryItems.balanceSort" clearable :options="[
+        <n-select
+          v-model:value="queryItems.balanceSort"
+          clearable
+          :options="[
             { label: '宝石降序', value: 1 },
             { label: '宝石升序', value: 2 },
-        ]" />
+          ]"
+        />
       </MeQueryItem>
 
       <MeQueryItem label="用户状态">
@@ -60,7 +64,6 @@
         :model="modalForm"
         :disabled="modalAction === 'view'"
       >
-
         <n-form-item
           label="头像"
           path="avater"
@@ -76,12 +79,11 @@
             :value="modalForm.avatar"
             path="mobile"
             :rule="{
-            required: true,
-            message: '请上传头像',
-            trigger: ['input', 'blur'],
-          }"
-          >
-          </CustomUpload>
+              required: true,
+              message: '请上传头像',
+              trigger: ['input', 'blur'],
+            }"
+          ></CustomUpload>
         </n-form-item>
         <n-form-item
           label="用户名"
@@ -104,7 +106,7 @@
             trigger: ['input', 'blur'],
           }"
         >
-          <n-input v-model:value="modalForm.mobile"  />
+          <n-input v-model:value="modalForm.mobile" />
         </n-form-item>
         <n-form-item
           v-if="['add', 'reset'].includes(modalAction)"
@@ -147,7 +149,7 @@
 <script setup>
 import { NAvatar, NButton, NSwitch, NTag } from 'naive-ui'
 import { formatDateTime } from '@/utils'
-import { MeCrud, MeQueryItem, MeModal,CustomUpload } from '@/components'
+import { MeCrud, MeQueryItem, MeModal, CustomUpload } from '@/components'
 import { useCrud } from '@/composables'
 import api from './api'
 
@@ -156,25 +158,26 @@ defineOptions({ name: 'UserMgt' })
 const $table = ref(null)
 /** QueryBar筛选参数（可选） */
 const queryItems = ref({
-  balanceSort: 1
+  balanceSort: 1,
 })
 
 onMounted(() => {
   $table.value?.handleSearch()
 })
 
-const roles = ref([])
-api.getAllRoles().then(({ data = [] }) => (roles.value = data))
-
 const columns = [
-  { title: '昵称', key: 'nickname', width: 150, render: ({ avatar, nickname }) =>
-      [
-        h(NAvatar, {
-          size: 'medium',
-          src: avatar,
-        }),
-        h('span', nickname),
-      ]},
+  {
+    title: '昵称',
+    key: 'nickname',
+    width: 150,
+    render: ({ avatar, nickname }) => [
+      h(NAvatar, {
+        size: 'medium',
+        src: avatar,
+      }),
+      h('span', nickname),
+    ],
+  },
   { title: '手机号', key: 'mobile', width: 150, ellipsis: { tooltip: true } },
   /*  {
       title: '角色',
@@ -204,9 +207,12 @@ const columns = [
   { title: '冻结宝石', key: 'frezon_balance', width: 150, ellipsis: { tooltip: true } },
   { title: '微信', key: 'wechat', width: 150, ellipsis: { tooltip: true } },
   { title: 'QQ', key: 'qq', width: 150, ellipsis: { tooltip: true } },
-  { title: '分佣比例', key: 'rate', width: 150, },
-  { title: '允许赠送', key: 'is_give', width: 50,},
-  { title: '在线', key: 'online', width: 50,
+  { title: '分佣比例', key: 'rate', width: 150 },
+  { title: '允许赠送', key: 'is_give', width: 50 },
+  {
+    title: '在线',
+    key: 'online',
+    width: 50,
     render: (row) =>
       h(
         NTag,

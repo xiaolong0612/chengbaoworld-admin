@@ -26,8 +26,9 @@ export const useDataStore = defineStore('data', {
   getters: {},
   actions: {
     async init() {
-      await this.getVipList()
-      await this.getLabelList()
+      console.log('这里可以加载初始数据')
+      // await this.getVipList()
+      // await this.getLabelList()
       // await this.getAllRoles()
     },
     async getVipList() {
