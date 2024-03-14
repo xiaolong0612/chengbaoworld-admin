@@ -1,3 +1,11 @@
+<!--------------------------------
+ - @Author: Ronnie Zhang
+ - @LastEditor: Ronnie Zhang
+ - @LastEditTime: 2023/12/05 21:29:56
+ - @Email: zclzone@outlook.com
+ - Copyright © 2023 Ronnie Zhang(大脸怪) | https://isme.top
+ --v-permission="'AddUser'"------------------------------->
+
 <template>
   <CommonPage>
     <template #action>
@@ -10,49 +18,19 @@
     <MeCrud
       ref="$table"
       v-model:query-items="queryItems"
-      :scroll-x="2500"
+      :scroll-x="1700"
       :columns="columns"
       :get-data="api.read"
     >
-      <MeQueryItem label="关键词搜索">
+      <MeQueryItem label="用户名" :label-width="50">
         <n-input
-          v-model:value="queryItems.nickname"
+          v-model:value="queryItems.username"
           type="text"
-          placeholder="请输入 昵称 / 账号 / ID"
+          placeholder="请输入用户名"
           clearable
-        />
-      </MeQueryItem>
-      <MeQueryItem label="宝石排序">
-        <n-select
-          v-model:value="queryItems.balanceSort"
-          clearable
-          :options="[
-            { label: '宝石降序', value: 1 },
-            { label: '宝石升序', value: 2 },
-          ]"
         />
       </MeQueryItem>
 
-      <MeQueryItem label="用户状态">
-        <n-select
-          v-model:value="queryItems.status"
-          clearable
-          :options="[
-            { label: '启用', value: 1 },
-            { label: '停用', value: 0 },
-          ]"
-        />
-      </MeQueryItem>
-      <MeQueryItem label="认证状态">
-        <n-select
-          v-model:value="queryItems.cert"
-          clearable
-          :options="[
-            { label: '已认证', value: 1 },
-            { label: '未认证', value: 0 },
-          ]"
-        />
-      </MeQueryItem>
     </MeCrud>
 
     <MeModal ref="modalRef" width="520px">
@@ -60,50 +38,55 @@
         ref="modalFormRef"
         label-placement="left"
         label-align="left"
-        :label-width="120"
+        :label-width="80"
         :model="modalForm"
         :disabled="modalAction === 'view'"
       >
-        <n-form-item v-if="['add', 'setRole'].includes(modalAction)" label="会员" path="roleIds">
+        <n-form-item
+          label="用户名"
+          path="userName"
+          :rule="{
+            required: true,
+            message: '请输入用户名',
+            trigger: ['input', 'blur'],
+          }"
+        >
+          <n-input v-model:value="modalForm.userName" :disabled="modalAction !== 'add'" />
+        </n-form-item>
+        <n-form-item
+          v-if="['add', 'reset'].includes(modalAction)"
+          :label="modalAction === 'reset' ? '重置密码' : '初始密码'"
+          path="password"
+          :rule="{
+            required: true,
+            message: '请输入密码',
+            trigger: ['input', 'blur'],
+          }"
+        >
+          <n-input v-model:value="modalForm.password" />
+        </n-form-item>
+
+        <n-form-item v-if="['add', 'setRole'].includes(modalAction)" label="角色" path="roleIds">
           <n-select
             v-model:value="modalForm.roleIds"
             :options="roles"
-            label-field="name"
-            value-field="id"
+            label-field="roleName"
+            value-field="roleId"
             clearable
             filterable
             multiple
           />
         </n-form-item>
-        <n-form-item
-          label="游戏分佣比例%"
-          path="nickname"
-          :rule="{
-            required: true,
-            message: '请输入游戏分佣比例',
-            trigger: ['input', 'blur'],
-          }"
-        >
-          <n-input
-            v-model:value="modalForm.nickname"
-            :disabled="['cert', 'card', 'balance'].includes(modalAction)"
-          />
-        </n-form-item>
-
-        <n-form-item v-if="['add', 'edit'].includes(modalAction)" label="支付宝收款码">
-          <CustomUpload v-model:value="modalForm.avatar"></CustomUpload>
-        </n-form-item>
-
-        <n-form-item v-if="['add', 'edit'].includes(modalAction)" label="微信收款码">
-          <CustomUpload v-model:value="modalForm.avatar"></CustomUpload>
-        </n-form-item>
-        <n-form-item label="状态" path="enable">
-          <n-switch v-model:value="modalForm.enable">
-            <template #checked>显示</template>
-            <template #unchecked>隐藏</template>
+        <n-form-item v-if="modalAction === 'add'" label="状态" path="status">
+          <n-switch v-model:value="modalForm.status" checked-value="0" unchecked-value="1">
+            <template #checked>启用</template>
+            <template #unchecked>停用</template>
           </n-switch>
         </n-form-item>
       </n-form>
+      <!--      <n-alert v-if="modalAction === 'add'" type="warning" closable>
+        详细信息需由用户本人补充修改
+      </n-alert>-->
     </MeModal>
   </CommonPage>
 </template>
@@ -111,120 +94,66 @@
 <script setup>
 import { NAvatar, NButton, NSwitch, NTag } from 'naive-ui'
 import { formatDateTime } from '@/utils'
-import { MeCrud, MeQueryItem, MeModal, CustomUpload } from '@/components'
+import { MeCrud, MeQueryItem, MeModal } from '@/components'
 import { useCrud } from '@/composables'
 import api from './api'
 
-defineOptions({ name: 'StoreList' })
+defineOptions({ name: 'UserMgt' })
 
 const $table = ref(null)
 /** QueryBar筛选参数（可选） */
-const queryItems = ref({
-  balanceSort: 1,
-})
+const queryItems = ref({})
 
 onMounted(() => {
   $table.value?.handleSearch()
 })
 
+/*const genders = [
+  { label: '男', value: '0' },
+  { label: '女', value: '1' },
+]*/
+const roles = ref([])
+
 const columns = [
+
+  { title: '用户名', key: 'username', width: 120, ellipsis: { tooltip: true } },
+  { title: '手机号', key: 'tel', width: 120, ellipsis: { tooltip: true } },
+  { title: '邮箱', key: 'email', width: 120, ellipsis: { tooltip: true } },
+  { title: '银行卡号', key: 'bankNumber', width: 150, ellipsis: { tooltip: true } },
+  { title: '微信收款码URl', key: 'wechatPayCode', width: 150, ellipsis: { tooltip: true } },
+  { title: '支付宝URl', key: 'alipayPayCode', width: 150, ellipsis: { tooltip: true } },
+  { title: '收款码URl', key: 'paymentCode', width: 150, ellipsis: { tooltip: true } },
+  { title: '地址', key: 'address', width: 150, ellipsis: { tooltip: true } },
   {
-    title: '昵称',
-    key: 'nickname',
-    width: 150,
-    render: ({ avatar, nickname }) => [
-      h(NAvatar, {
-        size: 'medium',
-        src: avatar,
-      }),
-      h('span', nickname),
-    ],
-  },
-  { title: '手机号', key: 'mobile', width: 150, ellipsis: { tooltip: true } },
-  /*  {
-      title: '角色',
-      key: 'roles',
-      width: 200,
-      ellipsis: { tooltip: true },
-      render: ({ roles }) => {
-        if (roles?.length) {
-          return roles.map((item, index) =>
-            h(
-              NTag,
-              { type: 'success', style: index > 0 ? 'margin-left: 8px;' : '' },
-              { default: () => item.name }
-            )
-          )
-        }
-        return '暂无角色'
-      },
-    },
-    {
-      title: '性别',
-      key: 'gender',
-      width: 80,
-      render: ({ gender }) => genders.find((item) => gender === item.value)?.label ?? '',
-    },*/
-  { title: '余额', key: 'balance', width: 150, ellipsis: { tooltip: true } },
-  { title: '冻结宝石', key: 'frezon_balance', width: 150, ellipsis: { tooltip: true } },
-  { title: '微信', key: 'wechat', width: 150, ellipsis: { tooltip: true } },
-  { title: 'QQ', key: 'qq', width: 150, ellipsis: { tooltip: true } },
-  { title: '分佣比例', key: 'rate', width: 150 },
-  { title: '允许赠送', key: 'is_give', width: 50 },
-  {
-    title: '在线',
-    key: 'online',
-    width: 50,
-    render: (row) =>
-      h(
-        NTag,
-        {
-          type: !row.online ? '' : 'success',
-        },
-        !row.online ? '离线' : '在线'
-      ),
-  },
-  {
-    title: '登陆状态',
+    title: '状态',
     key: 'status',
-    width: 120,
+    width: 100,
     render: (row) =>
       h(
         NSwitch,
         {
           size: 'small',
           rubberBand: false,
-          value: row.enable,
+          value: row.status === '0',
           loading: !!row.enableLoading,
           onUpdateValue: () => handleEnable(row),
         },
         {
-          checked: () => '允许',
-          unchecked: () => '禁止',
+          checked: () => '显示',
+          unchecked: () => '未显示',
         }
       ),
   },
   {
-    title: '注册时间',
-    key: 'reg_date',
+    title: '创建时间',
+    key: 'createDate',
     width: 180,
-    render(row) {
-      return h('span', formatDateTime(row['reg_date']))
-    },
-  },
-  {
-    title: '编辑时间',
-    key: 'edit_date',
-    width: 180,
-    render(row) {
-      return h('span', formatDateTime(row['edit_date']))
-    },
   },
   {
     title: '操作',
     key: 'actions',
-    width: 200,
-    align: 'center',
+    width: 150,
+    align: 'right',
     fixed: 'right',
     hideInExcel: true,
     render(row) {
@@ -234,38 +163,11 @@ const columns = [
           {
             size: 'small',
             type: 'primary',
-            secondary: true,
-            onClick: () => handleEdit(row),
-          },
-          {
-            default: () => '编辑',
-            icon: () => h('i', { class: 'i-carbon:user-role text-14' }),
-          }
-        ),
-        /*        h(
-                  NButton,
-                  {
-                    size: 'small',
-                    type: 'primary',
-                    secondary: true,
-                    onClick: () => handleOpenRolesSet(row),
-                  },
-                  {
-                    default: () => '分配角色',
-                    icon: () => h('i', { class: 'i-carbon:user-role text-14' }),
-                  }
-                ),*/
-        h(
-          NButton,
-          {
-            size: 'small',
-            type: 'primary',
             style: 'margin-left: 12px;',
             onClick: () => handleOpen({ action: 'reset', title: '重置密码', row, onOk: onSave }),
           },
           {
-            default: () => '重置密码',
-            /*            icon: () => h('i', { class: 'i-radix-icons:reset text-14' }),*/
+            default: () => '编辑',
           }
         ),
 
@@ -275,11 +177,10 @@ const columns = [
             size: 'small',
             type: 'error',
             style: 'margin-left: 12px;',
-            onClick: () => handleDelete(row.id),
+            onClick: () => handleDelete(row.userId),
           },
           {
             default: () => '删除',
-            /*            icon: () => h('i', { class: 'i-material-symbols:delete-outline text-14' }),*/
           }
         ),
       ]
@@ -290,7 +191,7 @@ const columns = [
 async function handleEnable(row) {
   row.enableLoading = true
   try {
-    await api.update({ id: row.id, enable: !row.enable })
+    await api.updateStatus({ userId: row.userId, status: row.status == '1' ? '0' : '1' })
     row.enableLoading = false
     $message.success('操作成功')
     $table.value?.handleSearch()
@@ -304,7 +205,7 @@ function handleOpenRolesSet(row) {
   handleOpen({
     action: 'setRole',
     title: '分配角色',
-    row: { id: row.id, username: row.username, roleIds },
+    row: { id: row.id, userName: row.userName, roleIds },
     onOk: onSave,
   })
 }
@@ -317,11 +218,10 @@ const {
   handleAdd,
   handleDelete,
   handleOpen,
-  handleEdit,
   handleSave,
 } = useCrud({
-  name: '店长',
-  initForm: { enable: true },
+  name: '用户',
+  initForm: { status: '0' },
   doCreate: api.create,
   doDelete: api.delete,
   doUpdate: api.update,
