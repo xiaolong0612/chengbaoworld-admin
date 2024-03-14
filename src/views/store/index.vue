@@ -1,10 +1,4 @@
-<!--------------------------------
- - @Author: Ronnie Zhang
- - @LastEditor: Ronnie Zhang
- - @LastEditTime: 2023/12/05 21:29:56
- - @Email: zclzone@outlook.com
- - Copyright © 2023 Ronnie Zhang(大脸怪) | https://isme.top
- --v-permission="'AddUser'"------------------------------->
+
 
 <template>
   <CommonPage>
@@ -51,7 +45,19 @@
             trigger: ['input', 'blur'],
           }"
         >
-          <n-input v-model:value="modalForm.userName" :disabled="modalAction !== 'add'" />
+          <n-select
+            v-model:value="queryItems.username"
+            filterable
+            type="text"
+            placeholder="请选择用户"
+            :options="userOptions"
+            :loading="userLoading"
+            label-field="nickname"
+            value-field=""
+            clearable
+            remote
+            @search="userHandleSearch"
+          />
         </n-form-item>
         <n-form-item
           v-if="['add', 'reset'].includes(modalAction)"
@@ -99,6 +105,9 @@ import { useCrud } from '@/composables'
 import api from './api'
 
 defineOptions({ name: 'UserMgt' })
+
+const userOptions = ref();
+const userLoading = ref(false);
 
 const $table = ref(null)
 /** QueryBar筛选参数（可选） */
@@ -188,6 +197,19 @@ const columns = [
   },
 ]
 
+function userHandleSearch(query){
+  if(!query.length){
+    userOptions.value = [];
+    return
+  }
+  userLoading.value = true;
+  api.getUserList({pageNum:1,pageSize:30,keyword:query}).then(res=>{
+    console.log(res.rows)
+    userOptions.value = res.rows;
+    userLoading.value = false;
+  })
+}
+
 async function handleEnable(row) {
   row.enableLoading = true
   try {
@@ -220,7 +242,7 @@ const {
   handleOpen,
   handleSave,
 } = useCrud({
-  name: '用户',
+  name: '店长',
   initForm: { status: '0' },
   doCreate: api.create,
   doDelete: api.delete,

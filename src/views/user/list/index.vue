@@ -16,7 +16,7 @@
     >
       <MeQueryItem label="关键词搜索">
         <n-input
-          v-model:value="queryItems.nickname"
+          v-model:value="queryItems.keyword"
           type="text"
           placeholder="请输入 昵称 / 账号 / ID"
           clearable
@@ -87,7 +87,7 @@
         <n-form-item
           v-if="['add', 'edit'].includes(modalAction)"
           label="头像"
-          path="avater"
+          path="avatar"
           :rule="{
             required: true,
             message: '请上传头像',
@@ -185,7 +185,7 @@
         <n-form-item
           v-if="['add', 'edit'].includes(modalAction)"
           label="上级账号"
-          path="mobile"
+          path="ucode"
           :rule="{
             required: true,
             message: '请输入手机号',
@@ -193,19 +193,22 @@
           }"
         >
           <n-select
-            v-model:value="value"
+            v-model:value="modalForm.ucode"
             filterable
             placeholder="可搜索"
-            :options="options"
-            :loading="loading"
+            :options="userOptions"
+            :loading="userLoading"
+            label-field="nickname"
+            value-field="ucode"
             clearable
             remote
-            @search="handleSearch"
+            @search="userHandleSearch"
           />
         </n-form-item>
         <n-form-item
           v-if="['add', 'edit'].includes(modalAction)"
           label="登陆密码"
+          path="password"
           :rule="{
             required: ['add'].includes(modalAction),
             message: '请输入密码',
@@ -217,14 +220,14 @@
         <n-form-item
           v-if="['add', 'edit'].includes(modalAction)"
           label="支付密码"
-          path="password"
+          path="payPassword"
           :rule="{
             required: ['add'].includes(modalAction),
             message: '请输入密码',
             trigger: ['input', 'blur'],
           }"
         >
-          <n-input v-model:value="modalForm.password" placeholder="为空不修改" />
+          <n-input v-model:value="modalForm.payPassword" placeholder="为空不修改" />
         </n-form-item>
         <n-form-item v-if="['edit'].includes(modalAction)" label="QQ">
           <n-input v-model:value="modalForm.qqName" />
@@ -233,13 +236,15 @@
           <n-input v-model:value="modalForm.wxName" />
         </n-form-item>
         <n-form-item v-if="modalAction === 'add'" label="允许登陆">
-          <n-switch v-model:value="modalForm.enable">
+          <n-switch v-model:value="modalForm.status"
+                    checked-value="0" unchecked-value="1">
             <template #checked>启用</template>
             <template #unchecked>停用</template>
           </n-switch>
         </n-form-item>
         <n-form-item v-if="modalAction === 'add'" label="允许转赠">
-          <n-switch v-model:value="modalForm.enable">
+          <n-switch v-model:value="modalForm.isGive"
+                    checked-value="0" unchecked-value="1">
             <template #checked>启用</template>
             <template #unchecked>停用</template>
           </n-switch>
@@ -283,7 +288,7 @@
       >
         <MeQueryItem label="关键词搜索">
           <n-input
-            v-model:value="queryItems.nickname"
+            v-model:value="queryItems.keyword"
             type="text"
             placeholder="请输入 昵称 / 账号 / ID"
             clearable
@@ -321,6 +326,8 @@ import api from './api'
 defineOptions({ name: 'UserList' })
 
 const urlQuery = getQueryObject()
+const userOptions = ref();
+const userLoading = ref(false);
 const $table = ref(null)
 /** QueryBar筛选参数（可选） */
 const queryItems = ref({
@@ -592,6 +599,19 @@ const columns = [
   },
 ]
 
+function userHandleSearch(query){
+  if(!query.length){
+    userOptions.value = [];
+    return
+  }
+  userLoading.value = true;
+  api.fetchData({pageNum:1,pageSize:30,keyword:query}).then(res=>{
+
+    userOptions.value = res.rows;
+    userLoading.value = false;
+  })
+}
+
 const columnsTeam = [
   {
     title: '账号',
@@ -618,7 +638,7 @@ const {
   handleSave,
 } = useCrud({
   name: '用户',
-  initForm: { enable: true },
+  initForm: { status:'0',isGive:'0' },
   doCreate: api.create,
   doDelete: api.delete,
   doUpdate: api.update,
