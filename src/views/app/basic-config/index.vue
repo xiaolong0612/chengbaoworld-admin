@@ -6,6 +6,14 @@
       label-width="130"
       require-mark-placement="right-hanging"
     >
+      <n-card :bordered="false" title="注册配置" content-style="padding-bottom: 0;">
+        <n-form-item label="邀请码">
+          <n-switch>
+            <template #checked>必须</template>
+            <template #unchecked>否</template>
+          </n-switch>
+        </n-form-item>
+      </n-card>
       <n-card :bordered="false" title="矿场配置" content-style="padding-bottom: 0;">
         <n-grid x-gap="12" :cols="3">
           <n-gi>
@@ -75,12 +83,12 @@
       </n-card>
       <n-card :bordered="false" title="店长配置" content-style="padding-bottom: 0;">
         <n-form-item label="店长质押" path="inputValue">
-          <n-input placeholder="请输入质押宝石数量" />
+          <n-input placeholder="请输入质押宝石数量"><template #suffix>颗宝石</template></n-input>
         </n-form-item>
       </n-card>
       <n-card :bordered="false" title="开放日期" content-style="padding-bottom: 0;">
         <n-form-item label="平台开放日期" path="inputValue">
-          <n-input placeholder="" />
+          <n-date-picker v-model:value="timestamp" type="date" />
         </n-form-item>
         <n-form-item label=" ">
           <n-space>

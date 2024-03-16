@@ -1,6 +1,11 @@
 <template>
   <CommonPage>
-    <MeCrud ref="$table" v-model:query-items="queryItems" :columns="columns" :get-data="api.read">
+    <MeCrud
+      ref="$table"
+      v-model:query-items="queryItems"
+      :columns="columns"
+      :get-data="api.fetchData"
+    >
       <MeQueryItem label="赠送会员">
         <n-input
           v-model:value="queryItems.mobile"
@@ -30,7 +35,15 @@
       </MeQueryItem>
     </MeCrud>
 
-    <MeModal ref="modalRef" width="520px"></MeModal>
+    <MeModal ref="modalRef" width="800px">
+      <MeCrud
+        ref="$table"
+        v-model:query-items="queryItems"
+        :scroll-x="780"
+        :columns="columnsCard"
+        :get-data="api.fetchData"
+      ></MeCrud>
+    </MeModal>
   </CommonPage>
 </template>
 
@@ -60,26 +73,24 @@ const columns = [
   {
     title: '赠送会员',
     key: 'mobile',
-    render: ({ title }) => [h('p', '昵称'), h('p', '账号')],
   },
   {
     title: '接收会员',
     key: 'mobile',
-    render: ({ title }) => [h('p', '昵称'), h('p', '账号')],
   },
   {
     title: '卡牌类型',
     key: 'roles',
     ellipsis: { tooltip: true },
-    render: ({ roles }) => {
-      return roles.map((item, index) =>
-        h(
-          NTag,
-          { type: 'success', style: index > 0 ? 'margin-left: 8px;' : '' },
-          { default: () => item.name }
-        )
-      )
-    },
+    // render: ({ roles }) => {
+    //   return roles.map((item, index) =>
+    //     h(
+    //       NTag,
+    //       { type: 'success', style: index > 0 ? 'margin-left: 8px;' : '' },
+    //       { default: () => item.name }
+    //     )
+    //   )
+    // },
   },
   {
     title: '卡牌数量',
@@ -111,12 +122,39 @@ const columns = [
         },
         {
           default: () => '查看详情',
-          icon: () => h('i', { class: 'i-carbon:user-role text-14' }),
         }
       ),
   },
 ]
-
+// 团队table
+const columnsCard = [
+  {
+    title: '卡牌名称',
+    render: ({ mobile }) => h('span', mobile),
+  },
+  { title: '卡号', key: 'level' },
+  { title: '状态', key: 'regDate' },
+  { title: '剩余有效天数', key: 'regDate' },
+  { title: '获得时间', key: 'regDate' },
+  {
+    title: '操作',
+    key: 'actions',
+    align: 'center',
+    render: (row) =>
+      h(
+        NButton,
+        {
+          size: 'small',
+          type: 'primary',
+          secondary: true,
+          onClick: () => handleView(row),
+        },
+        {
+          default: () => '撤销',
+        }
+      ),
+  },
+]
 const { modalRef, handleView } = useCrud({
   name: '闪卡日志',
   initForm: {},

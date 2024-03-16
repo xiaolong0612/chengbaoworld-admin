@@ -10,7 +10,10 @@
             require-mark-placement="right-hanging"
           >
             <n-form-item label="注册赠送基础矿" path="inputValue">
-              <n-switch v-model:value="active" />
+              <n-switch v-model:value="active">
+                <template #checked>是</template>
+                <template #unchecked>否</template>
+              </n-switch>
             </n-form-item>
             <n-form-item label="一级分佣" path="inputValue">
               <n-input placeholder="请输入一级分佣比例" />

@@ -22,33 +22,14 @@
           clearable
         />
       </MeQueryItem>
-      <MeQueryItem label="宝石数量">
+      <MeQueryItem label="排序方式">
         <n-select
           v-model:value="queryItems.balanceSort"
           clearable
           :options="[
-            { label: '宝石降序', value: 1 },
-            { label: '宝石升序', value: 2 },
-          ]"
-        />
-      </MeQueryItem>
-      <MeQueryItem label="城堡数量">
-        <n-select
-          v-model:value="queryItems.mineSort"
-          clearable
-          :options="[
-            { label: '城堡降序', value: 1 },
-            { label: '城堡升序', value: 2 },
-          ]"
-        />
-      </MeQueryItem>
-      <MeQueryItem label="卡牌数量">
-        <n-select
-          v-model:value="queryItems.cardSort"
-          clearable
-          :options="[
-            { label: '卡牌降序', value: 1 },
-            { label: '卡牌升序', value: 2 },
+            { label: '宝石', value: 1 },
+            { label: '城堡', value: 2 },
+            { label: '卡牌', value: 3 },
           ]"
         />
       </MeQueryItem>
@@ -107,11 +88,11 @@
         >
           <n-input
             v-model:value="modalForm.nickname"
-            :disabled="['cert', 'card', 'balance'].includes(modalAction)"
+            :disabled="!['edit', 'add'].includes(modalAction)"
           />
         </n-form-item>
-        <n-form-item v-if="['balance'].includes(modalAction)" label="变动类型">
-          <n-radio-group v-model:value="value" name="radiogroup">
+        <n-form-item v-if="['balance', 'frezonBalance'].includes(modalAction)" label="变动类型">
+          <n-radio-group v-model:value="modalForm.type" name="type">
             <n-space>
               <n-radio value="1">增加</n-radio>
               <n-radio value="0">减少</n-radio>
@@ -119,7 +100,7 @@
           </n-radio-group>
         </n-form-item>
         <n-form-item
-          v-if="['balance'].includes(modalAction)"
+          v-if="['balance', 'frezonBalance'].includes(modalAction)"
           label="变动宝石"
           path="mobile"
           :rule="{
@@ -128,12 +109,17 @@
             trigger: ['input', 'blur'],
           }"
         >
-          <n-input v-model:value="modalForm.mobile">
+          <n-input v-model:value="modalForm.gemCount">
             <template #suffix>个宝石</template>
           </n-input>
         </n-form-item>
-        <n-form-item v-if="['balance'].includes(modalAction)" label="宝石数量">
-          <n-input v-model:value="modalForm.balance" disabled>
+        <n-form-item v-if="['frezonBalance'].includes(modalAction)" label="冻结宝石数量">
+          <n-input v-model:value="changeFrezonBalance" disabled>
+            <template #suffix>个宝石</template>
+          </n-input>
+        </n-form-item>
+        <n-form-item v-if="['balance', 'frezonBalance'].includes(modalAction)" label="宝石数量">
+          <n-input v-model:value="changeBalance" disabled>
             <template #suffix>个宝石</template>
           </n-input>
         </n-form-item>
@@ -205,8 +191,28 @@
             @search="userHandleSearch"
           />
         </n-form-item>
+        <n-form-item v-if="['resetPwd'].includes(modalAction)" label="类型">
+          <n-radio-group v-model:value="modalForm.type" name="changePwdType">
+            <n-space>
+              <n-radio value="1">登录密码</n-radio>
+              <n-radio value="2">支付密码</n-radio>
+            </n-space>
+          </n-radio-group>
+        </n-form-item>
         <n-form-item
-          v-if="['add', 'edit'].includes(modalAction)"
+          v-if="['resetPwd'].includes(modalAction)"
+          :label="modalForm.type == '1' ? '登陆密码' : '支付密码'"
+          path="password"
+          :rule="{
+            required: ['add'].includes(modalAction),
+            message: '请输入密码',
+            trigger: ['input', 'blur'],
+          }"
+        >
+          <n-input v-model:value="modalForm.password" />
+        </n-form-item>
+        <n-form-item
+          v-if="['add'].includes(modalAction)"
           label="登陆密码"
           path="password"
           :rule="{
@@ -215,10 +221,10 @@
             trigger: ['input', 'blur'],
           }"
         >
-          <n-input v-model:value="modalForm.password" placeholder="为空不修改" />
+          <n-input v-model:value="modalForm.password" placeholder="请输入登陆密码" />
         </n-form-item>
         <n-form-item
-          v-if="['add', 'edit'].includes(modalAction)"
+          v-if="['add'].includes(modalAction)"
           label="支付密码"
           path="payPassword"
           :rule="{
@@ -227,7 +233,7 @@
             trigger: ['input', 'blur'],
           }"
         >
-          <n-input v-model:value="modalForm.payPassword" placeholder="为空不修改" />
+          <n-input v-model:value="modalForm.payPassword" placeholder="请输入支付密码" />
         </n-form-item>
         <n-form-item v-if="['edit'].includes(modalAction)" label="QQ">
           <n-input v-model:value="modalForm.qqName" />
@@ -236,15 +242,13 @@
           <n-input v-model:value="modalForm.wxName" />
         </n-form-item>
         <n-form-item v-if="modalAction === 'add'" label="允许登陆">
-          <n-switch v-model:value="modalForm.status"
-                    checked-value="0" unchecked-value="1">
+          <n-switch v-model:value="modalForm.status" checked-value="0" unchecked-value="1">
             <template #checked>启用</template>
             <template #unchecked>停用</template>
           </n-switch>
         </n-form-item>
         <n-form-item v-if="modalAction === 'add'" label="允许转赠">
-          <n-switch v-model:value="modalForm.isGive"
-                    checked-value="0" unchecked-value="1">
+          <n-switch v-model:value="modalForm.isGive" checked-value="0" unchecked-value="1">
             <template #checked>启用</template>
             <template #unchecked>停用</template>
           </n-switch>
@@ -322,22 +326,73 @@ import { formatDateTime, getQueryObject } from '@/utils'
 import { MeCrud, MeQueryItem, MeModal, CustomUpload } from '@/components'
 import { useCrud, useModal } from '@/composables'
 import api from './api'
+import { useClipboard } from '@vueuse/core'
 
 defineOptions({ name: 'UserList' })
 
+const { copy, copied } = useClipboard()
 const urlQuery = getQueryObject()
-const userOptions = ref();
-const userLoading = ref(false);
+const userOptions = ref()
+const userLoading = ref(false)
 const $table = ref(null)
 /** QueryBar筛选参数（可选） */
 const queryItems = ref({
   balanceSort: 1,
 })
 
+const [modalTeam] = useModal()
+
+const {
+  modalRef,
+  modalFormRef,
+  modalForm,
+  modalAction,
+  handleAdd,
+  handleDelete,
+  handleOpen,
+  handleEdit,
+  handleSave,
+} = useCrud({
+  name: '用户',
+  initForm: {
+    status: '0',
+    isGive: '0',
+  },
+  doCreate: api.create,
+  doDelete: api.delete,
+  doUpdate: api.update,
+  refresh: () => $table.value?.handleSearch(),
+})
+// 修改宝石数量
+const changeBalance = computed(() => {
+  if (modalAction.value == 'balance') {
+    if (modalForm.value.type == '1')
+      return modalForm.value.balance + Number(modalForm.value.gemCount)
+    if (modalForm.value.type == '0')
+      return modalForm.value.balance - Number(modalForm.value.gemCount)
+  }
+  if (modalAction.value == 'frezonBalance') {
+    if (modalForm.value.type == '1')
+      return modalForm.value.balance - Number(modalForm.value.gemCount)
+    if (modalForm.value.type == '0')
+      return modalForm.value.balance + Number(modalForm.value.gemCount)
+  }
+})
+const changeFrezonBalance = computed(() => {
+  if (modalForm.value.type == '1')
+    return modalForm.value.frezonBalance + Number(modalForm.value.gemCount)
+  if (modalForm.value.type == '0')
+    return modalForm.value.frezonBalance - Number(modalForm.value.gemCount)
+})
+
+watch(copied, (val) => {
+  val && $message.success('已复制到剪切板')
+})
+// 修改宝石数量 end
 onMounted(() => {
   $table.value?.handleSearch()
 })
-
+// 用户table
 const columns = [
   {
     title: '头像',
@@ -353,7 +408,19 @@ const columns = [
     title: '昵称',
     render: ({ nickname }) => h('span', nickname),
   },
-  { title: '手机号', key: 'mobile' },
+  {
+    title: '手机号',
+    render: ({ mobile }) =>
+      h(
+        NButton,
+        {
+          quaternary: true,
+          type: 'info',
+          onClick: () => copy(mobile),
+        },
+        mobile
+      ),
+  },
   {
     title: '宝石数量',
     width: 150,
@@ -364,7 +431,13 @@ const columns = [
           {
             quaternary: true,
             type: 'info',
-            onClick: () => handleOpen({ action: 'balance', title: '宝石设置', row, onOk: onSave }),
+            onClick: () =>
+              handleOpen({
+                action: 'balance',
+                title: '宝石设置',
+                row: { ...row, ...{ type: '1', gemCount: '' } },
+                onOk: onSave,
+              }),
           },
           row.balance
         )
@@ -376,17 +449,37 @@ const columns = [
   {
     title: '冻结宝石',
     width: 150,
-    render: ({ frezon_balance }) =>
+    render: (row) => {
+      return h(
+        NButton,
+        {
+          quaternary: true,
+          type: 'info',
+          onClick: () =>
+            handleOpen({
+              action: 'frezonBalance',
+              title: '冻结宝石设置',
+              row: { ...row, ...{ type: '1', gemCount: '' } },
+              onOk: onSave,
+            }),
+        },
+        row.frezonBalance
+      )
+    },
+  },
+  {
+    title: '邀请码',
+    render: ({ ucode }) =>
       h(
         NButton,
         {
           quaternary: true,
           type: 'info',
+          onClick: () => copy(ucode),
         },
-        frezon_balance
+        ucode
       ),
   },
-  { title: '邀请码', key: 'ucode', width: 150 },
   {
     title: '店长信息',
     width: 120,
@@ -465,7 +558,7 @@ const columns = [
           uncheckedValue: '0',
           value: row.status,
           loading: !!row.statusLoading,
-          onUpdateValue: () => handleEnable(row),
+          onUpdateValue: () => handleEnable(row, 'status'),
         },
         {
           checked: () => '允许',
@@ -487,7 +580,7 @@ const columns = [
           uncheckedValue: '0',
           value: row.isGive,
           loading: !!row.isGiveLoading,
-          onUpdateValue: () => handleEnable(row),
+          onUpdateValue: () => handleEnable(row, 'isGive'),
         },
         {
           checked: () => '允许',
@@ -508,14 +601,6 @@ const columns = [
     },
   },
   {
-    title: '编辑时间',
-    key: 'editDate',
-    width: 120,
-    render(row) {
-      return h('span', formatDateTime(row['editDate']))
-    },
-  },
-  {
     title: '注销状态',
     render: (row) =>
       h(
@@ -531,7 +616,7 @@ const columns = [
     key: 'actions',
     align: 'center',
     fixed: 'right',
-    width: 220,
+    width: 280,
     render: (row) =>
       h(
         NSpace,
@@ -569,6 +654,23 @@ const columns = [
             NButton,
             {
               size: 'small',
+              type: 'warning',
+              onClick: () =>
+                handleOpen({
+                  action: 'resetPwd',
+                  title: '修改密码',
+                  row: { ...row, ...{ type: '1' } },
+                  showFooter: false,
+                }),
+            },
+            {
+              default: () => '修改密码',
+            }
+          ),
+          h(
+            NButton,
+            {
+              size: 'small',
               type: 'primary',
               onClick: () =>
                 modalTeam.value?.open({
@@ -598,20 +700,7 @@ const columns = [
       ),
   },
 ]
-
-function userHandleSearch(query){
-  if(!query.length){
-    userOptions.value = [];
-    return
-  }
-  userLoading.value = true;
-  api.fetchData({pageNum:1,pageSize:30,keyword:query}).then(res=>{
-
-    userOptions.value = res.rows;
-    userLoading.value = false;
-  })
-}
-
+// 团队table
 const columnsTeam = [
   {
     title: '账号',
@@ -623,27 +712,17 @@ const columnsTeam = [
   { title: '卡牌数量', key: 'regDate' },
   { title: '注册时间', key: 'regDate' },
 ]
-
-const [modalTeam] = useModal()
-
-const {
-  modalRef,
-  modalFormRef,
-  modalForm,
-  modalAction,
-  handleAdd,
-  handleDelete,
-  handleOpen,
-  handleEdit,
-  handleSave,
-} = useCrud({
-  name: '用户',
-  initForm: { status:'0',isGive:'0' },
-  doCreate: api.create,
-  doDelete: api.delete,
-  doUpdate: api.update,
-  refresh: () => $table.value?.handleSearch(),
-})
+function userHandleSearch(query) {
+  if (!query.length) {
+    userOptions.value = []
+    return
+  }
+  userLoading.value = true
+  api.fetchData({ pageNum: 1, pageSize: 30, keyword: query }).then((res) => {
+    userOptions.value = res.rows
+    userLoading.value = false
+  })
+}
 
 function onSave() {
   if (modalAction.value === 'cert') {
@@ -656,19 +735,32 @@ function onSave() {
     //   api: () => api.resetPwd(modalForm.value.id, modalForm.value),
     //   cb: () => $message.success('密码重置成功'),
     // })
+  } else if (modalAction.value === 'balance') {
+    return handleSave({
+      api: () => api.updateGem(modalForm.value),
+      cb: () => $message.success('修改成功'),
+    })
+  } else if (modalAction.value === 'frezonBalance') {
+    return handleSave({
+      api: () => api.updateFrozenGem(modalForm.value),
+      cb: () => $message.success('修改成功'),
+    })
   }
   handleSave()
 }
 
-async function handleEnable(row) {
-  row.enableLoading = true
+async function handleEnable(row, key) {
+  row[key + 'Loading'] = true
   try {
-    await api.update({ id: row.id, enable: !row.enable })
-    row.enableLoading = false
+    let temp = {}
+    temp[key] = row[key] == '1' ? '0' : '1'
+    await api.update({ ...{ id: row.id }, ...temp })
+    Object.assign(row, temp)
+    row[key + 'Loading'] = false
     $message.success('操作成功')
-    $table.value?.handleSearch()
+    // $table.value?.handleSearch()
   } catch (error) {
-    row.enableLoading = false
+    row[key + 'Loading'] = false
   }
 }
 </script>

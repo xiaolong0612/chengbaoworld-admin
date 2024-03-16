@@ -1,5 +1,3 @@
-
-
 <template>
   <CommonPage>
     <template #action>
@@ -24,7 +22,6 @@
           clearable
         />
       </MeQueryItem>
-
     </MeCrud>
 
     <MeModal ref="modalRef" width="520px">
@@ -94,20 +91,57 @@
         详细信息需由用户本人补充修改
       </n-alert>-->
     </MeModal>
+    <MeModal ref="modalTeam" width="980px">
+      <MeCrud
+        ref="$table"
+        v-model:query-items="queryItems"
+        :scroll-x="780"
+        :columns="columnsTeam"
+        :get-data="api.fetchData"
+      >
+        <MeQueryItem label="关键词搜索">
+          <n-input
+            v-model:value="queryItems.keyword"
+            type="text"
+            placeholder="请输入 昵称 / 账号 / ID"
+            clearable
+          />
+        </MeQueryItem>
+        <MeQueryItem label="邀请等级">
+          <n-select
+            v-model:value="queryItems.cert"
+            clearable
+            :options="[
+              { label: '直邀', value: 0 },
+              { label: '间邀', value: 1 },
+              { label: '3', value: 2 },
+              { label: '4', value: 3 },
+              { label: '5', value: 4 },
+              { label: '6', value: 5 },
+              { label: '7', value: 6 },
+              { label: '8', value: 7 },
+              { label: '9', value: 8 },
+            ]"
+          />
+        </MeQueryItem>
+      </MeCrud>
+    </MeModal>
   </CommonPage>
 </template>
 
 <script setup>
-import { NAvatar, NButton, NSwitch, NTag } from 'naive-ui'
+import { NAvatar, NButton, NSwitch, NTag, NSpace } from 'naive-ui'
 import { formatDateTime } from '@/utils'
 import { MeCrud, MeQueryItem, MeModal } from '@/components'
-import { useCrud } from '@/composables'
+import { useCrud, useModal } from '@/composables'
 import api from './api'
+
+const [modalTeam] = useModal()
 
 defineOptions({ name: 'UserMgt' })
 
-const userOptions = ref();
-const userLoading = ref(false);
+const userOptions = ref()
+const userLoading = ref(false)
 
 const $table = ref(null)
 /** QueryBar筛选参数（可选） */
@@ -117,16 +151,13 @@ onMounted(() => {
   $table.value?.handleSearch()
 })
 
-/*const genders = [
-  { label: '男', value: '0' },
-  { label: '女', value: '1' },
-]*/
 const roles = ref([])
 
 const columns = [
-
   { title: '用户名', key: 'username', width: 120, ellipsis: { tooltip: true } },
   { title: '手机号', key: 'tel', width: 120, ellipsis: { tooltip: true } },
+  { title: '持有卡牌', key: 'email', width: 120, ellipsis: { tooltip: true } },
+  { title: '矿工', key: 'email', width: 120, ellipsis: { tooltip: true } },
   { title: '邮箱', key: 'email', width: 120, ellipsis: { tooltip: true } },
   { title: '银行卡号', key: 'bankNumber', width: 150, ellipsis: { tooltip: true } },
   { title: '微信收款码URl', key: 'wechatPayCode', width: 150, ellipsis: { tooltip: true } },
@@ -158,55 +189,103 @@ const columns = [
     key: 'createDate',
     width: 180,
   },
+
   {
     title: '操作',
     key: 'actions',
-    width: 150,
-    align: 'right',
+    align: 'center',
     fixed: 'right',
-    hideInExcel: true,
-    render(row) {
-      return [
-        h(
-          NButton,
-          {
-            size: 'small',
-            type: 'primary',
-            style: 'margin-left: 12px;',
-            onClick: () => handleOpen({ action: 'reset', title: '重置密码', row, onOk: onSave }),
-          },
-          {
-            default: () => '编辑',
-          }
-        ),
-
-        h(
-          NButton,
-          {
-            size: 'small',
-            type: 'error',
-            style: 'margin-left: 12px;',
-            onClick: () => handleDelete(row.userId),
-          },
-          {
-            default: () => '删除',
-          }
-        ),
-      ]
-    },
+    width: 280,
+    render: (row) =>
+      h(
+        NSpace,
+        {
+          justify: 'center',
+        },
+        [
+          h(
+            NButton,
+            {
+              size: 'small',
+              type: 'primary',
+              secondary: true,
+              onClick: () => handleEdit(row),
+            },
+            {
+              default: () => '查看详情',
+              icon: () => h('i', { class: 'i-carbon:user-role text-14' }),
+            }
+          ),
+          h(
+            NButton,
+            {
+              size: 'small',
+              type: 'info',
+              secondary: true,
+              onClick: () => handleOpen({ action: 'card', title: '空投', row, onOk: onSave }),
+            },
+            {
+              default: () => '空投',
+              icon: () => h('i', { class: 'i-fe:credit-card text-14' }),
+            }
+          ),
+          h(
+            NButton,
+            {
+              size: 'small',
+              type: 'primary',
+              onClick: () =>
+                modalTeam.value?.open({
+                  action: 'team',
+                  title: '团队信息',
+                  row,
+                  showFooter: false,
+                }),
+            },
+            {
+              default: () => '团队信息',
+            }
+          ),
+          h(
+            NButton,
+            {
+              size: 'small',
+              type: 'error',
+              onClick: () => handleDelete(row.id),
+            },
+            {
+              default: () => '删除',
+              icon: () => h('i', { class: 'i-material-symbols:delete-outline text-14' }),
+            }
+          ),
+        ]
+      ),
   },
 ]
 
-function userHandleSearch(query){
-  if(!query.length){
-    userOptions.value = [];
+// 团队table
+const columnsTeam = [
+  {
+    title: '账号',
+    render: ({ mobile }) => h('span', mobile),
+  },
+  { title: '邀请等级', key: 'level' },
+  { title: '宝石数量', key: 'balance' },
+  { title: '城堡数量', key: 'regDate' },
+  { title: '卡牌数量', key: 'regDate' },
+  { title: '注册时间', key: 'regDate' },
+]
+
+function userHandleSearch(query) {
+  if (!query.length) {
+    userOptions.value = []
     return
   }
-  userLoading.value = true;
-  api.getUserList({pageNum:1,pageSize:30,keyword:query}).then(res=>{
+  userLoading.value = true
+  api.getUserList({ pageNum: 1, pageSize: 30, keyword: query }).then((res) => {
     console.log(res.rows)
-    userOptions.value = res.rows;
-    userLoading.value = false;
+    userOptions.value = res.rows
+    userLoading.value = false
   })
 }
 
@@ -222,16 +301,6 @@ async function handleEnable(row) {
   }
 }
 
-function handleOpenRolesSet(row) {
-  const roleIds = row.roles.map((item) => item.id)
-  handleOpen({
-    action: 'setRole',
-    title: '分配角色',
-    row: { id: row.id, userName: row.userName, roleIds },
-    onOk: onSave,
-  })
-}
-
 const {
   modalRef,
   modalFormRef,
@@ -240,6 +309,7 @@ const {
   handleAdd,
   handleDelete,
   handleOpen,
+  handleEdit,
   handleSave,
 } = useCrud({
   name: '店长',

@@ -18,7 +18,7 @@
         <n-input
           v-model:value="queryItems.nickname"
           type="text"
-          placeholder="请输入 昵称 / 账号 / ID"
+          placeholder="请输入 姓名 / 身份证号"
           clearable
         />
       </MeQueryItem>

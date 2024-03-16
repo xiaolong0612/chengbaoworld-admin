@@ -51,7 +51,7 @@ export default defineConfig(({ command, mode }) => {
       open: false,
       proxy: {
         '/api': {
-          target: VITE_PROXY_TARGET,
+          target: 'http://192.168.0.217:8080',
           changeOrigin: true,
           rewrite: (path) => path.replace(new RegExp('^/api'), ''),
           secure: false,

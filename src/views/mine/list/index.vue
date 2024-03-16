@@ -38,7 +38,7 @@
             trigger: ['input', 'blur'],
           }"
         >
-          <n-input v-model:value="modalForm.name" :disabled="modalAction !== 'add'" />
+          <n-input v-model:value="modalForm.name" />
         </n-form-item>
         <n-form-item
           v-if="['add', 'edit'].includes(modalAction)"
@@ -50,7 +50,7 @@
             trigger: ['input', 'blur'],
           }"
         >
-          <n-input v-model:value="modalForm.mobile" />
+          <n-input v-model:value="modalForm.price" />
         </n-form-item>
         <n-form-item
           v-if="['add', 'edit'].includes(modalAction)"
@@ -58,19 +58,29 @@
           path="output"
           :rule="{
             required: true,
-            message: '总产出',
+            message: '请输入总产出',
             trigger: ['input', 'blur'],
           }"
         >
-          <n-input v-model:value="modalForm.output" />
+          <n-input v-model:value="modalForm.output"><template #suffix>颗宝石</template></n-input>
         </n-form-item>
-        <n-form-item label="日产" path="output">
-          <n-input v-if="['add'].includes(modalAction)" v-model:value="modalForm.output" disabled />
-          <n-input
-            v-if="['edit'].includes(modalAction)"
-            v-model:value="modalForm.output"
-            disabled
-          />
+        <n-form-item
+          label="有效期"
+          path="validity_period"
+          :rule="{
+            required: true,
+            message: '请输入有效期',
+            trigger: ['input', 'blur'],
+          }"
+        >
+          <n-input v-if="['add'].includes(modalAction)" v-model:value="modalForm.validity_period">
+            <template #suffix>天</template>
+          </n-input>
+        </n-form-item>
+        <n-form-item label="日产">
+          <n-input v-model:value="day_output" disabled>
+            <template #suffix>颗宝石</template>
+          </n-input>
         </n-form-item>
         <n-form-item
           v-if="['add', 'edit'].includes(modalAction)"
@@ -84,7 +94,7 @@
         >
           <n-input v-model:value="modalForm.max" />
         </n-form-item>
-        <n-form-item v-if="modalAction === 'add'" label="状态" path="status">
+        <n-form-item label="状态" path="status">
           <n-switch v-model:value="modalForm.status" checked-value="1" unchecked-value="0">
             <template #checked>上架</template>
             <template #unchecked>下架</template>
@@ -96,8 +106,8 @@
 </template>
 
 <script setup>
-import { NAvatar, NButton, NSwitch } from 'naive-ui'
-import { formatDateTime } from '@/utils'
+import { NImage, NButton, NSwitch } from 'naive-ui'
+import { formatDateTime, isNumber } from '@/utils'
 import { MeCrud, MeModal, CustomUpload } from '@/components'
 import { useCrud } from '@/composables'
 import api from './api'
@@ -114,9 +124,11 @@ const columns = [
   {
     title: '矿场封面',
     key: 'poster',
-    render: (row) => {
-      return row.singleOuput * 86400
-    },
+    render: ({ poster }) =>
+      h(NImage, {
+        height: '30',
+        src: poster,
+      }),
   },
   { title: '矿场名称', key: 'name' },
   { title: '解锁消耗宝石', key: 'price' },
@@ -200,16 +212,6 @@ async function handleEnable(row) {
   }
 }
 
-function handleOpenRolesSet(row) {
-  const roleIds = row.roles.map((item) => item.id)
-  handleOpen({
-    action: 'setRole',
-    title: '分配角色',
-    row: { id: row.id, username: row.username, roleIds },
-    onOk: onSave,
-  })
-}
-
 const {
   modalRef,
   modalFormRef,
@@ -225,6 +227,11 @@ const {
   doCreate: api.create,
   doUpdate: api.update,
   refresh: () => $table.value?.handleSearch(),
+})
+
+const day_output = computed(() => {
+  let val = modalForm.value.output / modalForm.value.validity_period
+  return val > 0 ? val : 0
 })
 
 function onSave() {

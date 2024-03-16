@@ -3,7 +3,8 @@ import { setupInterceptors } from './interceptors'
 
 export function createAxios(options = {}) {
   const defaultOptions = {
-    baseURL: import.meta.env.VITE_PROXY_TARGET,
+ //   baseURL: import.meta.env.VITE_PROXY_TARGET,
+    baseURL: '/api',
     timeout: 12000,
   }
   const service = axios.create({

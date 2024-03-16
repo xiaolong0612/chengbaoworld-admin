@@ -36,14 +36,13 @@ watchEffect(() => {
 const handleFinish = ({ event }) => {
   const result = JSON.parse(event.target.response)
   if (result.code == 200) {
-    console.log(result.data)
     emit('update:value', result.data)
   }
 }
 </script>
 <template>
   <n-upload
-    :action="apiUrl + '/api/file/upload'"
+    :action="apiUrl + '/file/upload'"
     :default-file-list="fileList"
     list-type="image-card"
     :max="1"
