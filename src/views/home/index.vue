@@ -1,117 +1,173 @@
 <template>
   <AppPage>
-    <n-grid :x-gap="12" :y-gap="8" :cols="4" item-responsive responsive="screen">
+    <n-grid :x-gap="8" :y-gap="8" :cols="4" item-responsive responsive="screen">
       <n-grid-item span="4 s:2 m:1 l:1">
-        <n-card title="在线居民" header-style="padding-bottom:0">
-          <n-statistic tabular-nums class="text-right">
+        <n-card hoverable header-style="padding-bottom:0" content-style="padding: 10px">
+          <n-statistic tabular-nums label="今日注册人数">
+            <n-number-animation :from="0" :to="12039" />
+            <template #suffix>
+              <n-tag round :bordered="false" type="success" class="align-middle">
+                <span class="flex items-center">
+                  +30%
+                  <i class="i-fe:chevron-up" />
+                </span>
+              </n-tag>
+            </template>
+          </n-statistic>
+        </n-card>
+      </n-grid-item>
+      <n-grid-item span="4 s:2 m:1 l:1">
+        <n-card hoverable header-style="padding-bottom:0" content-style="padding: 10px">
+          <n-statistic tabular-nums label="在线人数">
             <n-number-animation :from="0" :to="12039" />
             <template #suffix><span class="text-6xl">人</span></template>
           </n-statistic>
         </n-card>
       </n-grid-item>
       <n-grid-item span="4 s:2 m:1 l:1">
-        <n-card title="入住居民" header-style="padding-bottom:0">
-          <n-statistic tabular-nums class="text-right">
+        <n-card hoverable header-style="padding-bottom:0" content-style="padding: 10px">
+          <n-statistic tabular-nums label="今日店长赠送">
             <n-number-animation :from="0" :to="12039" />
-            <template #suffix><span class="text-6xl">人</span></template>
+            <template #suffix><span class="text-6xl">张</span></template>
           </n-statistic>
         </n-card>
       </n-grid-item>
       <n-grid-item span="4 s:2 m:1 l:1">
-        <n-card title="开通店长" header-style="padding-bottom:0">
-          <n-statistic tabular-nums class="text-right">
+        <n-card hoverable header-style="padding-bottom:0" content-style="padding: 10px">
+          <n-statistic tabular-nums label="今日空头">
             <n-number-animation :from="0" :to="12039" />
-            <template #suffix><span class="text-6xl">人</span></template>
+            <template #suffix><span class="text-6xl">张</span></template>
           </n-statistic>
         </n-card>
       </n-grid-item>
-      <n-grid-item span="4 s:2 m:1 l:1">
-        <n-card title="实名居民" header-style="padding-bottom:0">
-          <n-statistic tabular-nums class="text-right">
-            <n-number-animation :from="0" :to="12039" />
-            <template #suffix><span class="text-6xl">人</span></template>
-          </n-statistic>
+      <n-grid-item span="4 s:2 m:3 l:3">
+        <n-card hoverable title="⚡️ 宝石、闪卡交易统计" segmented>
+          <p>以月为单位，统计每天的宝石、闪卡交易笔数和数量</p>
+          <VChart :option="trendOption" :init-options="{ height: 400 }" autoresize />
         </n-card>
       </n-grid-item>
       <n-grid-item span="4 s:2 m:1 l:1">
-        <n-card title="共产宝石" header-style="padding-bottom:0">
-          <n-statistic tabular-nums class="text-right">
-            <n-number-animation :from="0" :to="12039" />
-            <template #suffix><span class="text-6xl">颗</span></template>
-          </n-statistic>
+        <n-card hoverable title="⚡️ 数据统计" segmented>
+          <n-grid x-gap="12" :cols="2">
+            <n-gi>
+              <n-statistic tabular-nums label="入住居民">
+                <div class="inline-block">
+                  <n-h2 prefix="bar">
+                    <n-number-animation :from="0" :to="12039" />
+                  </n-h2>
+                </div>
+                <template #suffix><span class="text-6xl">人</span></template>
+              </n-statistic>
+            </n-gi>
+            <n-gi>
+              <n-statistic tabular-nums label="入住店长">
+                <div class="inline-block">
+                  <n-h2 prefix="bar" type="success">
+                    <n-number-animation :from="0" :to="12039" />
+                  </n-h2>
+                </div>
+                <template #suffix><span class="text-6xl">人</span></template>
+              </n-statistic>
+            </n-gi>
+            <n-gi>
+              <n-statistic tabular-nums label="共产宝石">
+                <div class="inline-block">
+                  <n-h2 prefix="bar" type="info">
+                    <n-number-animation :from="0" :to="12039" />
+                  </n-h2>
+                </div>
+                <template #suffix><span class="text-6xl">颗</span></template>
+              </n-statistic>
+            </n-gi>
+            <n-gi>
+              <n-statistic tabular-nums label="销毁宝石">
+                <div class="inline-block">
+                  <n-h2 prefix="bar" type="error">
+                    <n-number-animation :from="0" :to="12039" />
+                  </n-h2>
+                </div>
+                <template #suffix><span class="text-6xl">颗</span></template>
+              </n-statistic>
+            </n-gi>
+            <n-gi>
+              <n-statistic tabular-nums label="在线矿工">
+                <div class="inline-block">
+                  <n-h2 prefix="bar" type="warning">
+                    <n-number-animation :from="0" :to="12039" />
+                  </n-h2>
+                </div>
+                <template #suffix><span class="text-6xl">张</span></template>
+              </n-statistic>
+            </n-gi>
+            <n-gi>
+              <n-statistic tabular-nums label="闪卡库存">
+                <div class="inline-block">
+                  <n-h2 prefix="bar">
+                    <n-number-animation :from="0" :to="12039" />
+                  </n-h2>
+                </div>
+                <template #suffix><span class="text-6xl">张</span></template>
+              </n-statistic>
+            </n-gi>
+            <n-gi>
+              <n-statistic tabular-nums label="在线矿场">
+                <div class="inline-block">
+                  <n-h2 prefix="bar">
+                    <n-number-animation :from="0" :to="12039" />
+                  </n-h2>
+                </div>
+                <template #suffix><span class="text-6xl">个</span></template>
+              </n-statistic>
+            </n-gi>
+            <n-gi>
+              <n-statistic tabular-nums label="竞技宝石价值">
+                <div class="inline-block">
+                  <n-h2 prefix="bar">
+                    <n-number-animation :from="0" :to="12039" />
+                  </n-h2>
+                </div>
+                <template #suffix><span class="text-6xl">颗</span></template>
+              </n-statistic>
+            </n-gi>
+            <n-gi>
+              <n-statistic tabular-nums label="玩家游戏累计投入">
+                <div class="inline-block">
+                  <n-h2 prefix="bar">
+                    <n-number-animation :from="0" :to="12039" />
+                  </n-h2>
+                </div>
+                <template #suffix><span class="text-6xl">颗</span></template>
+              </n-statistic>
+            </n-gi>
+            <n-gi>
+              <n-statistic tabular-nums label="玩家游戏累计收入">
+                <div class="inline-block">
+                  <n-h2 prefix="bar">
+                    <n-number-animation :from="0" :to="12039" />
+                  </n-h2>
+                </div>
+                <template #suffix><span class="text-6xl">颗</span></template>
+              </n-statistic>
+            </n-gi>
+          </n-grid>
+        </n-card>
+      </n-grid-item>
+      <n-grid-item span="4 s:2 m:3 l:3">
+        <n-card hoverable title="⚡️ 游戏交易统计" segmented>
+          <p>
+            以月为单位，统计玩家每天大逃杀、运动会、赐福的投入和盈利总数，并计算平台的盈亏，竞技兑入兑出
+          </p>
+          <VChart :option="trendOption" :init-options="{ height: 400 }" autoresize />
         </n-card>
       </n-grid-item>
       <n-grid-item span="4 s:2 m:1 l:1">
-        <n-card title="销毁宝石" header-style="padding-bottom:0">
-          <n-statistic tabular-nums class="text-right">
-            <n-number-animation :from="0" :to="12039" />
-            <template #suffix><span class="text-6xl">颗</span></template>
-          </n-statistic>
-        </n-card>
-      </n-grid-item>
-      <n-grid-item span="4 s:2 m:1 l:1">
-        <n-card title="累计宝石转赠" header-style="padding-bottom:0">
-          <n-statistic tabular-nums class="text-right">
-            <n-number-animation :from="0" :to="12039" />
-            <template #suffix><span class="text-6xl">笔</span></template>
-          </n-statistic>
-        </n-card>
-      </n-grid-item>
-      <n-grid-item span="4 s:2 m:1 l:1">
-        <n-card title="竞技宝石价值" header-style="padding-bottom:0">
-          <n-statistic tabular-nums class="text-right">
-            <n-number-animation :from="0" :to="12039" />
-            <template #suffix><span class="text-6xl">颗</span></template>
-          </n-statistic>
-        </n-card>
-      </n-grid-item>
-      <n-grid-item span="4 s:2 m:1 l:1">
-        <n-card title="在线矿工" header-style="padding-bottom:0">
-          <n-statistic tabular-nums class="text-right">
-            <n-number-animation :from="0" :to="12039" />
-          </n-statistic>
-        </n-card>
-      </n-grid-item>
-      <n-grid-item span="4 s:2 m:1 l:1">
-        <n-card title="共投入矿工" header-style="padding-bottom:0">
-          <n-statistic tabular-nums class="text-right">
-            <n-number-animation :from="0" :to="12039" />
-          </n-statistic>
-        </n-card>
-      </n-grid-item>
-      <n-grid-item span="4 s:2 m:1 l:1">
-        <n-card title="闪卡库存" header-style="padding-bottom:0">
-          <n-statistic tabular-nums class="text-right">
-            <n-number-animation :from="0" :to="12039" />
-          </n-statistic>
-        </n-card>
-      </n-grid-item>
-      <n-grid-item span="4 s:2 m:1 l:1"></n-grid-item>
-      <n-grid-item span="4 s:2 m:1 l:1">
-        <n-card title="小型城堡" header-style="padding-bottom:0">
-          <n-statistic tabular-nums class="text-right">
-            <n-number-animation :from="0" :to="12039" />
-          </n-statistic>
-        </n-card>
-      </n-grid-item>
-      <n-grid-item span="4 s:2 m:1 l:1">
-        <n-card title="中型城堡" header-style="padding-bottom:0">
-          <n-statistic tabular-nums class="text-right">
-            <n-number-animation :from="0" :to="12039" />
-          </n-statistic>
+        <n-card hoverable title="⚡️ 今日玩家游戏排行" segmented>
+          <p>查询用户今日游戏总投入和盈利，按投入降序排行</p>
         </n-card>
       </n-grid-item>
     </n-grid>
-
-    <n-card class="mt-12" title="⚡️ 宝石、闪卡交易统计" segmented>
-      <p>以月为单位，统计每天的宝石、闪卡交易笔数和数量</p>
-      <VChart :option="trendOption" :init-options="{ height: 400 }" autoresize />
-    </n-card>
-    <n-card class="mt-12" title="⚡️ 游戏交易统计" segmented>
-      <p>
-        以月为单位，统计玩家每天大逃杀、运动会、赐福的投入和盈利总数，并计算平台的盈亏，竞技兑入兑出
-      </p>
-      <VChart :option="trendOption" :init-options="{ height: 400 }" autoresize />
+    <n-card hoverable class="mt-8" title="⚡️ 今日店长赠卡排行" segmented>
+      <p>查询用户今日店长的售卡数据统计</p>
     </n-card>
   </AppPage>
 </template>

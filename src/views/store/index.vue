@@ -237,6 +237,23 @@ const columns = [
               onClick: () =>
                 modalTeam.value?.open({
                   action: 'team',
+                  title: '赠卡记录',
+                  row,
+                  showFooter: false,
+                }),
+            },
+            {
+              default: () => '赠卡记录',
+            }
+          ),
+          h(
+            NButton,
+            {
+              size: 'small',
+              type: 'primary',
+              onClick: () =>
+                modalTeam.value?.open({
+                  action: 'team',
                   title: '团队信息',
                   row,
                   showFooter: false,
