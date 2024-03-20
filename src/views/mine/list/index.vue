@@ -7,7 +7,22 @@
       </n-button>
     </template>
 
-    <MeCrud ref="$table" :columns="columns" :get-data="api.read"></MeCrud>
+    <MeCrud
+      ref="$table"
+      v-model:query-items="queryItems"
+      :scroll-x="1800"
+      :columns="columns"
+      :get-data="api.read"
+    >
+      <MeQueryItem label="矿场名称" :label-width="80">
+        <n-input
+          v-model:value="queryItems.name"
+          type="text"
+          placeholder="请输入矿场名称"
+          clearable
+        />
+      </MeQueryItem>
+    </MeCrud>
 
     <MeModal ref="modalRef" width="520px">
       <n-form
@@ -23,7 +38,7 @@
           path="poster"
           :rule="{
             required: true,
-            message: '请输入名称',
+            message: '请上传封面图',
             trigger: ['input', 'blur'],
           }"
         >
@@ -69,7 +84,7 @@
           path="validityPeriod"
       
         >
-          <n-input @change="changeDate"  v-if="['add'].includes(modalAction)" v-model:value="modalForm.validityPeriod">
+          <n-input @change="changeDate"  v-if="['add','edit'].includes(modalAction)" v-model:value="modalForm.validityPeriod">
             <template #suffix>天</template>
           </n-input>
         </n-form-item>
@@ -104,7 +119,7 @@
 <script setup>
 import { NImage, NButton, NSwitch } from 'naive-ui'
 import { formatDateTime, isNumber } from '@/utils'
-import { MeCrud, MeModal, CustomUpload } from '@/components'
+import { MeCrud, MeModal, CustomUpload, MeQueryItem } from '@/components'
 import { useCrud } from '@/composables'
 import api from './api'
 
@@ -174,7 +189,7 @@ const columns = [
       return h('span', formatDateTime(row['reg_date']))
     },
   },
-/*  {
+  {
     title: '操作',
     key: 'actions',
     align: 'center',
@@ -188,7 +203,9 @@ const columns = [
             size: 'small',
             type: 'primary',
             secondary: true,
-            onClick: () => handleEdit(row),
+            onClick: () => handleEdit({...row,price:row.price.toString(),output:row.price.toString(),
+            max:row.max.toString()
+            }),
           },
           {
             default: () => '编辑',
@@ -196,7 +213,7 @@ const columns = [
         ),
       ]
     },
-  },*/  //不让编辑)_)?
+  },
 ]
 
 async function handleEnable(row) {
@@ -210,7 +227,7 @@ async function handleEnable(row) {
     row.enableLoading = false
   }
 }
-
+const queryItems = ref({})
 const {
   modalRef,
   modalFormRef,
