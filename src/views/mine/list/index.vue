@@ -136,11 +136,9 @@ const columns = [
   { title: '最大开启数量', key: 'max' },
   {
     title: '日产',
-    key: 'singleOuput',
+    key: 'dailyOutput',
     ellipsis: { tooltip: true },
-    render: (row) => {
-      return row.singleOuput * 86400
-    },
+
   },
   {
     title: '总产出',
@@ -176,7 +174,7 @@ const columns = [
       return h('span', formatDateTime(row['reg_date']))
     },
   },
-  {
+/*  {
     title: '操作',
     key: 'actions',
     align: 'center',
@@ -198,13 +196,13 @@ const columns = [
         ),
       ]
     },
-  },
+  },*/  //不让编辑)_)?
 ]
 
 async function handleEnable(row) {
   row.enableLoading = true
   try {
-    await api.update({ id: row.id, enable: !row.enable })
+    await api.updateStatus({ id: row.id, status: row.status === '1'?'0':'1' })
     row.enableLoading = false
     $message.success('操作成功')
     $table.value?.handleSearch()

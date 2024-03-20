@@ -194,14 +194,14 @@
         <n-form-item v-if="['resetPwd'].includes(modalAction)" label="类型">
           <n-radio-group v-model:value="modalForm.type" name="changePwdType">
             <n-space>
-              <n-radio value="1">登录密码</n-radio>
-              <n-radio value="2">支付密码</n-radio>
+              <n-radio value="0">登录密码</n-radio>
+              <n-radio value="1">支付密码</n-radio>
             </n-space>
           </n-radio-group>
         </n-form-item>
         <n-form-item
           v-if="['resetPwd'].includes(modalAction)"
-          :label="modalForm.type == '1' ? '登陆密码' : '支付密码'"
+          :label="modalForm.type == '0' ? '登陆密码' : '支付密码'"
           path="password"
           :rule="{
             required: ['add'].includes(modalAction),
@@ -659,8 +659,8 @@ const columns = [
                 handleOpen({
                   action: 'resetPwd',
                   title: '修改密码',
-                  row: { ...row, ...{ type: '1' } },
-                  showFooter: false,
+                  row: { ...row, ...{ type: '0' } },
+                  onOk: onSave
                 }),
             },
             {
@@ -743,6 +743,12 @@ function onSave() {
   } else if (modalAction.value === 'frezonBalance') {
     return handleSave({
       api: () => api.updateFrozenGem(modalForm.value),
+      cb: () => $message.success('修改成功'),
+    })
+  } else if (modalAction.value === 'resetPwd') {
+
+    return handleSave({
+      api: () => api.editPsd(modalForm.value),
       cb: () => $message.success('修改成功'),
     })
   }
