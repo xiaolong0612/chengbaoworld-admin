@@ -10,7 +10,7 @@
     <MeCrud
       ref="$table"
       v-model:query-items="queryItems"
-      :scroll-x="1700"
+      :scroll-x="1800"
       :columns="columns"
       :get-data="api.read"
     >
@@ -29,57 +29,93 @@
         ref="modalFormRef"
         label-placement="left"
         label-align="left"
-        :label-width="80"
+        :label-width="120"
         :model="modalForm"
         :disabled="modalAction === 'view'"
       >
         <n-form-item
           label="用户名"
-          path="userName"
-          :rule="{
-            required: true,
-            message: '请输入用户名',
-            trigger: ['input', 'blur'],
-          }"
+          path="uid"
+
         >
           <n-select
-            v-model:value="queryItems.username"
+            v-model:value="modalForm.uid"
             filterable
             type="text"
             placeholder="请选择用户"
             :options="userOptions"
             :loading="userLoading"
             label-field="nickname"
-            value-field=""
+            value-field="id"
             clearable
             remote
             @search="userHandleSearch"
           />
         </n-form-item>
+
+
+
         <n-form-item
-          v-if="['add', 'reset'].includes(modalAction)"
-          :label="modalAction === 'reset' ? '重置密码' : '初始密码'"
-          path="password"
+          v-if="['add', 'edit'].includes(modalAction)"
+          label="邮箱"
+          path="email"
           :rule="{
             required: true,
-            message: '请输入密码',
+            message: '请输入邮箱',
             trigger: ['input', 'blur'],
           }"
         >
-          <n-input v-model:value="modalForm.password" />
+          <n-input v-model:value="modalForm.email" :disabled="modalAction !== 'add'" />
+        </n-form-item>
+        <n-form-item
+          v-if="['add', 'edit'].includes(modalAction)"
+          label="银行账号"
+          path="bankNumber"
+          :rule="{
+            required: true,
+            message: '请输入银行账号',
+            trigger: ['input', 'blur'],
+          }"
+        >
+          <n-input v-model:value="modalForm.bankNumber" :disabled="modalAction !== 'add'" />
+        </n-form-item>
+        <n-form-item
+          v-if="['add', 'edit'].includes(modalAction)"
+          label="微信收款二维码"
+          path="wechatPayCode"
+          :rule="{
+            required: true,
+            message: '请输入微信收款二维码',
+            trigger: ['input', 'blur'],
+          }"
+        >
+          <n-input v-model:value="modalForm.wechatPayCode" :disabled="modalAction !== 'add'" />
+        </n-form-item>
+        <n-form-item
+          v-if="['add', 'edit'].includes(modalAction)"
+          label="支付宝收款二维码"
+          path="alipayPayCode"
+          :rule="{
+            required: true,
+            message: '请输入支付宝收款二维码',
+            trigger: ['input', 'blur'],
+          }"
+        >
+          <n-input v-model:value="modalForm.alipayPayCode" :disabled="modalAction !== 'add'" />
+        </n-form-item>
+        <n-form-item
+          v-if="['add', 'edit'].includes(modalAction)"
+          label="收款二维码"
+          path="paymentCode"
+          :rule="{
+            required: true,
+            message: '请输入收款二维码',
+            trigger: ['input', 'blur'],
+          }"
+        >
+          <n-input v-model:value="modalForm.paymentCode" :disabled="modalAction !== 'add'" />
         </n-form-item>
 
-        <n-form-item v-if="['add', 'setRole'].includes(modalAction)" label="角色" path="roleIds">
-          <n-select
-            v-model:value="modalForm.roleIds"
-            :options="roles"
-            label-field="roleName"
-            value-field="roleId"
-            clearable
-            filterable
-            multiple
-          />
-        </n-form-item>
         <n-form-item v-if="modalAction === 'add'" label="状态" path="status">
           <n-switch v-model:value="modalForm.status" checked-value="0" unchecked-value="1">
             <template #checked>启用</template>
@@ -107,23 +143,7 @@
             clearable
           />
         </MeQueryItem>
-        <MeQueryItem label="邀请等级">
-          <n-select
-            v-model:value="queryItems.cert"
-            clearable
-            :options="[
-              { label: '直邀', value: 0 },
-              { label: '间邀', value: 1 },
-              { label: '3', value: 2 },
-              { label: '4', value: 3 },
-              { label: '5', value: 4 },
-              { label: '6', value: 5 },
-              { label: '7', value: 6 },
-              { label: '8', value: 7 },
-              { label: '9', value: 8 },
-            ]"
-          />
-        </MeQueryItem>
+
       </MeCrud>
     </MeModal>
   </CommonPage>
@@ -156,8 +176,7 @@ const roles = ref([])
 const columns = [
   { title: '用户名', key: 'username', width: 120, ellipsis: { tooltip: true } },
   { title: '手机号', key: 'tel', width: 120, ellipsis: { tooltip: true } },
-  { title: '持有卡牌', key: 'email', width: 120, ellipsis: { tooltip: true } },
-  { title: '矿工', key: 'email', width: 120, ellipsis: { tooltip: true } },
+  { title: '店长等级', key: 'level', width: 80 },
   { title: '邮箱', key: 'email', width: 120, ellipsis: { tooltip: true } },
   { title: '银行卡号', key: 'bankNumber', width: 150, ellipsis: { tooltip: true } },
   { title: '微信收款码URl', key: 'wechatPayCode', width: 150, ellipsis: { tooltip: true } },
@@ -195,7 +214,7 @@ const columns = [
     key: 'actions',
     align: 'center',
     fixed: 'right',
-    width: 280,
+    width: 250,
     render: (row) =>
       h(
         NSpace,
@@ -214,53 +233,6 @@ const columns = [
             {
               default: () => '查看详情',
               icon: () => h('i', { class: 'i-carbon:user-role text-14' }),
-            }
-          ),
-          h(
-            NButton,
-            {
-              size: 'small',
-              type: 'info',
-              secondary: true,
-              onClick: () => handleOpen({ action: 'card', title: '空投', row, onOk: onSave }),
-            },
-            {
-              default: () => '空投',
-              icon: () => h('i', { class: 'i-fe:credit-card text-14' }),
-            }
-          ),
-          h(
-            NButton,
-            {
-              size: 'small',
-              type: 'primary',
-              onClick: () =>
-                modalTeam.value?.open({
-                  action: 'team',
-                  title: '赠卡记录',
-                  row,
-                  showFooter: false,
-                }),
-            },
-            {
-              default: () => '赠卡记录',
-            }
-          ),
-          h(
-            NButton,
-            {
-              size: 'small',
-              type: 'primary',
-              onClick: () =>
-                modalTeam.value?.open({
-                  action: 'team',
-                  title: '团队信息',
-                  row,
-                  showFooter: false,
-                }),
-            },
-            {
-              default: () => '团队信息',
             }
           ),
           h(
@@ -293,6 +265,8 @@ const columnsTeam = [
   { title: '注册时间', key: 'regDate' },
 ]
 
+
+
 function userHandleSearch(query) {
   if (!query.length) {
     userOptions.value = []
@@ -300,7 +274,7 @@ function userHandleSearch(query) {
   }
   userLoading.value = true
   api.getUserList({ pageNum: 1, pageSize: 30, keyword: query }).then((res) => {
-    console.log(res.rows)
+
     userOptions.value = res.rows
     userLoading.value = false
   })
@@ -337,18 +311,26 @@ const {
   refresh: () => $table.value?.handleSearch(),
 })
 
+
+
+
+
+
 function onSave() {
-  if (modalAction.value === 'setRole') {
+  if (modalAction.value === 'add') {
+
     return handleSave({
-      api: () => api.update(modalForm.value),
+
+      api: () => {
+        console.log(111)
+           let username = userOptions.value.find(val => {
+             return val.id === modalForm.value.uid
+           }).username;
+        return api.create({...modalForm.value,username:username})
+      },
       cb: () => $message.success('分配成功'),
     })
-  } else if (modalAction.value === 'reset') {
-    return handleSave({
-      api: () => api.resetPwd(modalForm.value.id, modalForm.value),
-      cb: () => $message.success('密码重置成功'),
-    })
   }
-  handleSave()
+
 }
 </script>

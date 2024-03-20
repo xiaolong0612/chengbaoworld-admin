@@ -3,9 +3,9 @@
 import { request } from '@/utils'
 
 export default {
-  create: (data) => request.post('/system/user', data),
+  create: (data) => request.post('/busi/CastleAgent/add', data),
   read: (params = {}) => request.get('/busi/CastleAgent/list', { params }),
-  getUserList:(params = {}) => request.get('/busi/CastleUser/list', { params }),
+  getUserList:(params = {}) => request.post(`/busi/CastleUser/queryPage?pageNum=${params.pageNum}&pageSize=${params.pageSize}`, params),
   update: (data) => request.put(`/system/user`, data),
   updateStatus: (data) => request.put(`/system/user/changeStatus`, data),
   delete: (id) => request.delete(`/system/user/${id}`),
