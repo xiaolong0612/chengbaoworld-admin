@@ -3,7 +3,7 @@ import { ref } from 'vue'
 const emit = defineEmits(['update:value'])
 
 const token = JSON.parse(localStorage.getItem('vue-naivue-admin_auth'))
-const apiUrl = import.meta.env.VITE_PROXY_TARGET
+const apiUrl = 'api';
 
 const props = defineProps({
   value: {

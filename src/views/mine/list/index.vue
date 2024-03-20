@@ -20,14 +20,14 @@
       >
         <n-form-item
           label="矿场封面图"
-          path="name"
+          path="poster"
           :rule="{
             required: true,
             message: '请输入名称',
             trigger: ['input', 'blur'],
           }"
         >
-          <CustomUpload v-model:value="modalForm.name" />
+          <CustomUpload v-model:value="modalForm.poster" />
         </n-form-item>
         <n-form-item
           label="矿场名称"
@@ -66,14 +66,10 @@
         </n-form-item>
         <n-form-item
           label="有效期"
-          path="validity_period"
-          :rule="{
-            required: true,
-            message: '请输入有效期',
-            trigger: ['input', 'blur'],
-          }"
+          path="validityPeriod"
+      
         >
-          <n-input v-if="['add'].includes(modalAction)" v-model:value="modalForm.validity_period">
+          <n-input @change="changeDate"  v-if="['add'].includes(modalAction)" v-model:value="modalForm.validityPeriod">
             <template #suffix>天</template>
           </n-input>
         </n-form-item>
@@ -92,7 +88,7 @@
             trigger: ['input', 'blur'],
           }"
         >
-          <n-input v-model:value="modalForm.max" />
+          <n-input  v-model:value="modalForm.max" />
         </n-form-item>
         <n-form-item label="状态" path="status">
           <n-switch v-model:value="modalForm.status" checked-value="1" unchecked-value="0">
@@ -119,6 +115,11 @@ const $table = ref(null)
 onMounted(() => {
   $table.value?.handleSearch()
 })
+
+
+const changeDate = (text)=>{
+  modalForm.value.validityPeriod = Number(text);
+}
 
 const columns = [
   {
@@ -230,7 +231,7 @@ const {
 })
 
 const day_output = computed(() => {
-  let val = modalForm.value.output / modalForm.value.validity_period
+  let val = modalForm.value.output / modalForm.value.validityPeriod
   return val > 0 ? val : 0
 })
 
