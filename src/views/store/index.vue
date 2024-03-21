@@ -50,6 +50,7 @@
             clearable
             remote
             @search="userHandleSearch"
+            :disabled="modalAction !== 'add'"
           />
         </n-form-item>
 
@@ -65,7 +66,7 @@
             trigger: ['input', 'blur'],
           }"
         >
-          <n-input v-model:value="modalForm.email" :disabled="modalAction !== 'add'" />
+          <n-input v-model:value="modalForm.email"  />
         </n-form-item>
         <n-form-item
           v-if="['add', 'edit'].includes(modalAction)"
@@ -77,7 +78,7 @@
             trigger: ['input', 'blur'],
           }"
         >
-          <n-input v-model:value="modalForm.bankNumber" :disabled="modalAction !== 'add'" />
+          <n-input v-model:value="modalForm.bankNumber"  />
         </n-form-item>
         <n-form-item
           v-if="['add', 'edit'].includes(modalAction)"
@@ -89,8 +90,9 @@
             trigger: ['input', 'blur'],
           }"
         >
-          <n-input v-model:value="modalForm.wechatPayCode" :disabled="modalAction !== 'add'" />
+          <CustomUpload v-model:value="modalForm.wechatPayCode" />
         </n-form-item>
+
         <n-form-item
           v-if="['add', 'edit'].includes(modalAction)"
           label="支付宝收款二维码"
@@ -101,7 +103,8 @@
             trigger: ['input', 'blur'],
           }"
         >
-          <n-input v-model:value="modalForm.alipayPayCode" :disabled="modalAction !== 'add'" />
+          <CustomUpload v-model:value="modalForm.alipayPayCode" />
+
         </n-form-item>
         <n-form-item
           v-if="['add', 'edit'].includes(modalAction)"
@@ -113,7 +116,8 @@
             trigger: ['input', 'blur'],
           }"
         >
-          <n-input v-model:value="modalForm.paymentCode" :disabled="modalAction !== 'add'" />
+          <CustomUpload v-model:value="modalForm.paymentCode" />
+
         </n-form-item>
 
         <n-form-item v-if="modalAction === 'add'" label="状态" path="status">
@@ -152,7 +156,7 @@
 <script setup>
 import { NAvatar, NButton, NSwitch, NTag, NSpace } from 'naive-ui'
 import { formatDateTime } from '@/utils'
-import { MeCrud, MeQueryItem, MeModal } from '@/components'
+import { MeCrud, MeQueryItem, MeModal, CustomUpload } from '@/components'
 import { useCrud, useModal } from '@/composables'
 import api from './api'
 
@@ -316,21 +320,5 @@ const {
 
 
 
-function onSave() {
-  if (modalAction.value === 'add') {
 
-    return handleSave({
-
-      api: () => {
-        console.log(111)
-           let username = userOptions.value.find(val => {
-             return val.id === modalForm.value.uid
-           }).username;
-        return api.create({...modalForm.value,username:username})
-      },
-      cb: () => $message.success('分配成功'),
-    })
-  }
-
-}
 </script>

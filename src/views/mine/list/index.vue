@@ -151,7 +151,7 @@ const columns = [
   { title: '最大开启数量', key: 'max' },
   {
     title: '日产',
-    key: 'dailyOutput',
+    key: 'singleOutput',
     ellipsis: { tooltip: true },
 
   },
